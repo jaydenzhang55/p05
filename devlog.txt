@@ -1,1 +1,21 @@
+jaydenZ -- 2025-05-02 11:31
+  - created design doc
+  - established communications
 
+dannyH -- 2025-05-02 11:31
+  - created and uploaded initial files
+
+kyleL -- 2025-05-02 11:31
+  - created and uploaded team flag
+
+margieC -- 2025-05-06 7:37
+  - added readme heading
+
+jaydenZ, margieC, dannyH, kyleL -- 2025-05-06 22:20
+  - completed design doc creation
+    - decided on overview, components, apis, maps, and overall functionalities
+
+jaydenZ, margieC, dannyH, kyleL -- 2025-05-07 22:45
+  DESIGN DOC CHANGES
+  - added AI apis
+  - decided on a MVP (creating an engine for the project)
