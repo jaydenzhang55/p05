@@ -22,8 +22,31 @@ app.secret_key = secret
 
 @app.route('/', methods=['GET', 'POST'])
 def main():
-    return 'Project 5'
+    return render_template("index.html")
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    return render_template("login.html")
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    return render_template("register.html")
+
+@app.route('/saved/<username>', methods=['GET', 'POST'])
+def saved(username):
+    return render_template("saved.html")
+
+@app.route('/book/<ISBN>', methods=['GET', 'POST'])
+def book(ISBN):
+    return render_template("book.html")
+
+@app.route('/search', methods=['GET', 'POST'])
+def search():
+    return render_template("search.html")
 
 if __name__ == "__main__":
-    app.debug = True
+    app.debug = False
     app.run(host='0.0.0.0')
+    #app.debug = True
+    #app.run(host='127.0.0.1')
+    
