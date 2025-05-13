@@ -19,3 +19,12 @@ jaydenZ, margieC, dannyH, kyleL -- 2025-05-07 22:45
   DESIGN DOC CHANGES
   - added AI apis
   - decided on a MVP (creating an engine for the project)
+
+dannyH -- 2025-05-09 11:40
+  - Created working flask app
+
+dannyH -- 2025-05-12 11:40
+  - created templates and basic linkage on flask
+
+dannyH -- 2025-05-13 11:44
+  - Nav bar in index.html and login + register flask code
