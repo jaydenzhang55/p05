@@ -25,6 +25,10 @@ def userTable():
     cur.execute("CREATE TABLE users(id INTEGER PRIMARY KEY, username TEXT NOT NULL UNIQUE, password TEXT NOT NULL)")
     db.commit()
 
+def pdfTable():
+    cur.execute("""CREATE TABLE IF NOT EXISTS pdfs (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, pdf_data BLOB)""")
+    db.commit()
+
 def addUser(username, password):
     try:
         db = sqlite3.connect(DB_FILE)
@@ -107,3 +111,10 @@ def validatePassword(hash, password):
     print("Password: " + password)
     print("Matches Hash: " + str(bcrypt.checkpw(password.encode("utf-8"), hash)))
     return bcrypt.checkpw(password.encode("utf-8"), hash)
+
+def storePDF(title, filePath):
+    with open(filePath, 'rb') as file:
+        blob_data = file.read()
+
+    cur.execute("INSERT INTO pdfs (title, pdf_data) VALUES (?, ?)", (title, blob_data))
+    db.commit()

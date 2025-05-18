@@ -8,6 +8,7 @@ Target Ship Date: 2025-06-06
 '''
 
 import os
+from app import db
 from flask import Flask
 from flask import render_template
 from flask import request
@@ -100,13 +101,6 @@ def book(ISBN):
 def search():
     return render_template("search.html")
 
-if __name__ == "__main__":
-#     app.debug = False
-#     app.run(host='0.0.0.0')
-    app.debug = True
-    app.run(host='127.0.0.1')
-    
-
 def compress_pdf_pikepdf(input_path, output_path):
     with pikepdf.open(input_path) as pdf:
         pdf.save(output_path, optimize_version=True, compression=pikepdf.CompressionLevel.compression_default)
@@ -128,7 +122,7 @@ def websiteLinkCreator(query):
 
     return soup.find_all('a')
 
-def downloadPDF(chosenLink): 
+def getDownloadPDFLink(chosenLink): 
     URL = "https://annas-archive.org" + chosenLink
     page = requests.get(URL)
 
@@ -140,6 +134,30 @@ def downloadPDF(chosenLink):
             listOfLinks.append(link)
 
     return listOfLinks
+
+def download_pdf_file(download_url, output_path):
+    response = requests.get(download_url)
+    with open(output_path, 'wb') as f:
+        f.write(response.content)
+
+def PDF(chosenLink, query):
+    listOfLinks = getDownloadPDFLink(chosenLink)
+    originalPath = "downloaded.pdf"
+    compressedPath = "compressed.pdf"
+    download_pdf_file("https://annas-archive.org" + listOfLinks[0], originalPath)
+    compress_pdf_pikepdf(originalPath, compressedPath)
+    db.storePDF(query, compressedPath)
+
+    os.remove(originalPath)
+    os.remove(compressedPath)
+
+
+if __name__ == "__main__":
+#     app.debug = False
+#     app.run(host='0.0.0.0')
+    app.debug = True
+    app.run(host='127.0.0.1')
+    
 
  
 
