@@ -8,7 +8,7 @@ Target Ship Date: 2025-06-06
 '''
 
 import os
-from app import db
+import db as db
 from flask import Flask
 from flask import render_template
 from flask import request
@@ -63,9 +63,9 @@ def login():
         username = request.form.get('username')
         password = request.form.get('pw')
         if not check_user(username):
-            return render_template("signIn.html", message="No such username exists")
+            return render_template("login.html", message="No such username exists")
         if not check_password(username, password):
-            return render_template("signIn.html", message="Incorrect password")
+            return render_template("login.html", message="Incorrect password")
         session['username'] = username
         session["password"] = request.form.get("pw")
         return redirect('/')
@@ -81,7 +81,7 @@ def register():
         password = request.form['pw']     
         user = db.getUser(username)
         if user is None:
-            db.addUser(name, username, password)
+            db.addUser(username, password)
             session["username"] = username
             session["password"] = password
             return redirect('/login')
@@ -104,6 +104,8 @@ def search():
 def compress_pdf_pikepdf(input_path, output_path):
     with pikepdf.open(input_path) as pdf:
         pdf.save(output_path, optimize_version=True, compression=pikepdf.CompressionLevel.compression_default)
+
+#compress_pdf_pikepdf("input.pdf", "compressed.pdf")
 
 def websiteLinkCreator(query):
     queryArray = query.split(' ')
