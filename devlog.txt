@@ -28,3 +28,7 @@ dannyH -- 2025-05-12 11:40
 
 dannyH -- 2025-05-13 11:44
   - Nav bar in index.html and login + register flask code
+
+kyleL -- 2025-05-19 11:40
+ - Added API keys 
+ - Added Gemini API code that generates video and text solutions when given a query
