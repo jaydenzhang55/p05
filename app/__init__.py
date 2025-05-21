@@ -105,8 +105,6 @@ def compress_pdf_pikepdf(input_path, output_path):
     with pikepdf.open(input_path) as pdf:
         pdf.save(output_path, optimize_version=True, compression=pikepdf.CompressionLevel.compression_default)
 
-compress_pdf_pikepdf("input.pdf", "compressed.pdf")
-
 def websiteLinkCreator(query):
     queryArray = query.split(' ')
     modification = ""

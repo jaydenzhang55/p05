@@ -118,3 +118,6 @@ def storePDF(title, filePath):
 
     cur.execute("INSERT INTO pdfs (title, pdf_data) VALUES (?, ?)", (title, blob_data))
     db.commit()
+
+def searchForPDF(query):
+    
