@@ -53,7 +53,10 @@ def check_password(username, password):
 
 @app.route('/', methods=['GET', 'POST'])
 def main():
-    return render_template("index.html")
+    if signed_in():
+        return render_template("index.html", loggedIn="true", username=session['username'])
+    else:
+        return render_template("index.html", loggedIn="false", username='None')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -63,13 +66,13 @@ def login():
         username = request.form.get('username')
         password = request.form.get('pw')
         if not check_user(username):
-            return render_template("login.html", message="No such username exists")
+            return render_template("login.html", message="No such username exists", loggedIn="false")
         if not check_password(username, password):
-            return render_template("login.html", message="Incorrect password")
+            return render_template("login.html", message="Incorrect password", loggedIn="false")
         session['username'] = username
         session["password"] = request.form.get("pw")
         return redirect('/')
-     return render_template("login.html")
+     return render_template("login.html", loggedIn="false")
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -86,21 +89,38 @@ def register():
             session["password"] = password
             return redirect('/login')
         else:
-            return render_template('register.html', message="Username already exists")
+            return render_template('register.html', message="Username already exists", loggedIn="false")
     return render_template("register.html")
 
 @app.route('/saved/<username>', methods=['GET', 'POST'])
 def saved(username):
-    return render_template("saved.html")
+    if signed_in():
+        return render_template("saved.html", loggedIn="true")
+    else:
+        return render_template("saved.html", loggedIn="false")
 
 @app.route('/book/<ISBN>', methods=['GET', 'POST'])
 def book(ISBN):
-    return render_template("book.html")
-
+    if signed_in():
+        return render_template("book.html", loggedIn="true")
+    else:
+        return render_template("book.html", loggedIn="false")
+    
 @app.route('/search', methods=['GET', 'POST'])
 def search():
-    return render_template("search.html")
-
+    if request.method=='POST':
+        search = request.form.get('search')
+        if signed_in():
+            return render_template("search.html", loggedIn="true", search=search)
+        else:
+            return render_template("search.html", loggedIn="false", search=search)
+    
+@app.route('/logout', methods=['GET', 'POST'])
+def logOut():
+    session.pop('username', None)
+    session.pop('password', None)
+    return redirect('/')
+    
 def compress_pdf_pikepdf(input_path, output_path):
     with pikepdf.open(input_path) as pdf:
         pdf.save(output_path, optimize_version=True, compression=pikepdf.CompressionLevel.compression_default)
