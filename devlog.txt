@@ -32,3 +32,41 @@ dannyH -- 2025-05-13 11:44
 kyleL -- 2025-05-19 11:40
  - Added API keys 
  - Added Gemini API code that generates video and text solutions when given a query
+
+*Python Style Guide (PEP 8):*
+ - Function and variable naming conventions (snake_case) — consistency across scraping, PDF parsing, and AI response logic.
+ - Import grouping and ordering — improved clarity at the top of each file (standard libraries, packages like requests or PyMuPDF).
+ - Line length limited to 79-88 characters — improved editor readability and diff tools.
+ - Consistent 4-space indentation — no mixed tabs/spaces.
+ - Descriptive docstrings and inline comments — explain complex logic, especially in PDF scraping and AI answering.
+ - Whitespace around operators — visual clarity in calculations and conditionals.
+ - Use of type hints — added to key functions.
+ - Modular structure — separate files for routes, utils, parsing, and AI logic followed the “one purpose per file” guideline.
+
+Most Useful/Appreciated by Developers:
+ - Emphasis on readability over cleverness.
+ - Clear function documentation — allowed developers to understand behavior and usage quickly.
+
+Reference Example:
+```def pdfExtractor(pdf_path: str) -> str:```
+ - Proper naming, type hints, and a "single-responsibility" layout.
+
+*JavaScript Style Guide*
+
+ - Use of const and let instead of var — avoided bugs and shows variable scope.
+ - Arrow function syntax is cleaner for async functions and callbacks.
+ - Consistent semicolon usage — prevented automatic semicolon insertion (ASI) issues.
+ - 2-space indentation — used for JS files.
+ - Avoidance of deeply nested callbacks — Promises and async/await => readability + reduced indentation hell.
+ - Separation of concerns — organized event listeners, DOM queries, and fetch logic into scripts.
+ - CamelCase naming — followed standard for variables and functions.
+ - Single quotes for strings — via linter/prettier for consistency.
+
+Most Useful/Appreciated by Developers:
+ - Style reduced differences and merge conflicts.
+ - Whitespace and indentation rules are used in formatting.
+ - Troubleshooting (e.g., for upload failures) is much easier through modular JS files.
+
+Example:
+```const handleUpload = async (event) => {}```
+Clear use of const, arrow function, and asynchronous handling in a concise, modern format.
