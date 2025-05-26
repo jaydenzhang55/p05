@@ -13,3 +13,4 @@ soupsieve==2.6
 Werkzeug==3.0.4
 google-auth==2.38.0
 google-genai==1.7.0
+pikepdf==9.7.0
