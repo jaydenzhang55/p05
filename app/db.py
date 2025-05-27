@@ -26,7 +26,7 @@ def userTable():
     db.commit()
 
 def pdfTable():
-    cur.execute("""CREATE TABLE IF NOT EXISTS pdfs (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, pdf_data BLOB)""")
+    cur.execute("CREATE TABLE IF NOT EXISTS pdfs (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, pdf_data BLOB)")
     db.commit()
 
 def addUser(username, password):
