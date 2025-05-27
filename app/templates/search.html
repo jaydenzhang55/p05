@@ -49,13 +49,13 @@ Target Ship Date: 2025-06-06
         </ul>
     </nav>
 
-    <div>
-        <h1>Your search result for: {{search}}</h1>
-        <div class="mx-auto mt-10 mb-10 max-w-3xl">
+    <div class='mx-10 my-10'>
+        <h1 class='text-3xl'>Your search result for: {{search}}</h1>
+        <div class="ml-10 mt-10 mb-10 max-w-3xl">
         <!-- Insert forloop-->
-            <div class="transition ease-in-out duration-500 grid grid-col-2 gap-auto px-8 py-2 hover:bg-blue-800 rounded-2xl hover:text-white">
+            <form method="POST" action="/book" class="transition ease-in-out duration-500 grid grid-col-2 gap-auto px-20 py-10 hover:bg-blue-800 rounded-md hover:text-white hover:cursor-pointer">
                 <div class="transition ease-in-out duration-500 justify-self-start font-bold">sdfasdf </div> 
-            </div>
+            </form>
         </div>
     </div>
 </body>
