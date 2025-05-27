@@ -14,6 +14,12 @@ Target Ship Date: 2025-06-06
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
+    {% block javascript %}
+        <script>
+            var loggedIn = {{loggedIn}};
+            var user = {{username}};
+        </script>
+    {% endblock %} 
     <title>Log In</title>
 </head>
 
