@@ -18,7 +18,10 @@ Target Ship Date: 2025-06-06
     {% block javascript %}
         <script>
             var loggedIn = {{loggedIn}};
-            const user = {{username}};
+            var user;
+            if (loggedIn){
+                user = {{username}};
+            }
         </script>
     {% endblock %} 
     <title>Home</title>
