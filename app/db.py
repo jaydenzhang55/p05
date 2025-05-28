@@ -123,7 +123,7 @@ def searchForPDF(title):
     db = sqlite3.connect(DB_FILE)
     cur = db.cursor()
     try:
-        pdf = cur.execute(f"SELECT pdf_data FROM pdfs WHERE title='{title}'").>
+        pdf = cur.execute(f"SELECT pdf_data FROM pdfs WHERE title='{title}'").fetchall()
     except sqlite3.Error as e:
         print(f"An error occurred: {e}")
         pdf = None
