@@ -56,7 +56,7 @@ def main():
     if signed_in():
         return render_template("index.html", loggedIn="true", username=session['username'])
     else:
-        return render_template("index.html", loggedIn="false", username='None')
+        return render_template("index.html", loggedIn="false", username='')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -90,21 +90,21 @@ def register():
             return redirect('/login')
         else:
             return render_template('register.html', message="Username already exists", loggedIn="false")
-    return render_template("register.html")
+    return render_template("register.html", loggedIn="false")
 
 @app.route('/saved/<username>', methods=['GET', 'POST'])
 def saved(username):
     if signed_in():
-        return render_template("saved.html", loggedIn="true")
+        return render_template("saved.html", loggedIn="true", username=session['username'])
     else:
-        return render_template("saved.html", loggedIn="false")
+        return render_template("saved.html", loggedIn="false", username='')
 
 @app.route('/book/<ISBN>', methods=['GET', 'POST'])
 def book(ISBN):
     if signed_in():
-        return render_template("book.html", loggedIn="true")
+        return render_template("book.html", loggedIn="true", username=session['username'])
     else:
-        return render_template("book.html", loggedIn="false")
+        return render_template("book.html", loggedIn="false", username='')
     
 @app.route('/search', methods=['GET', 'POST'])
 def search():

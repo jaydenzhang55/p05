@@ -26,8 +26,17 @@ def userTable():
     db.commit()
 
 def pdfTable():
-    cur.execute("CREATE TABLE IF NOT EXISTS pdfs (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, pdf_data BLOB)")
-    db.commit()
+    try:
+        db = sqlite3.connect(DB_FILE)
+        cur = db.cursor()
+        cur.execute("CREATE TABLE IF NOT EXISTS pdfs (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, pdf_data BLOB)")
+        db.commit()
+    except sqlite3.Error as e:
+        print(f"Database error: {e}")
+    finally:
+        cur.close()
+        db.commit()
+        db.close()
 
 def addUser(username, password):
     try:
@@ -131,4 +140,10 @@ def searchForPDF(title):
          cur.close()
          db.commit()
          db.close()
+<<<<<<< HEAD
     return pdf
+=======
+    return pdf
+
+pdfTable()
+>>>>>>> 981e9f1692f2472d88d08447df3e95392639c1c1
