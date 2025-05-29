@@ -17,11 +17,8 @@ Target Ship Date: 2025-06-06
     <script src="../static/js/main.js"></script>
     {% block javascript %}
         <script>
-            var loggedIn = {{loggedIn}};
-            var user;
-            if (loggedIn){
-                user = {{username}};
-            }
+            var loggedIn = {{ loggedIn | tojson }}; 
+            var user = loggedIn ? {{ username | tojson }} : null;
         </script>
     {% endblock %} 
     <title>Home</title>
@@ -30,15 +27,18 @@ Target Ship Date: 2025-06-06
 
 <body class="bg-white text-blue-800 font-sans">
     <nav class="flex flex-row justify-between items-center h-20 w-full bg-white border border-b-gray-300 shadow-md">
-        <h1 class=" basis-7/24 peer-has-[:focus]:basis-5/24 order-first ml-10 text-blue-700 text-4xl font-bold">ξ<a href="/"></a></h1>
+        <a href="/"><h1 class=" basis-7/24 peer-has-[:focus]:basis-5/24 order-first ml-10 text-blue-700 text-4xl font-bold">ξ</h1></a>
         <ul id="navItem" class="basis-5/12 peer-has-[:focus]:basis-6/12 flex flex-row justify-evenly justify-center-safe h-full text-center items-center text-xl">
             <li class="flex flex-row basis-1/2 items-center justify-center peer w-full has-[:focus]:basis-3/4 ease-in-out">
-                <form method="POST" action="/search" class="peer has-[:focus]:w-full">
+                <form method="POST" action="/search" id='searchBar' class="peer has-[:focus]:w-full">
                     <input class="border border-solid w-full p-2 text-blue-800 rounded-md" type="text" id="search"
                 name="search" placeholder="Search">
                 </form>
             </li>
-            <li class="flex flex-row basis-1/2 items-center justify-center w-1/4 peer-has-[:focus]:basis-1/4 ease-in-out hover:border-b-4 hover:border-b-blue-500 hover:text-blue-700 ml-2">
+            <li class="basis-1/10 hover:border-b-4 hover:border-b-blue-500 hover:text-blue-700 ml-2">
+                <a href="/upload" class="px-4 py-2">Upload</a>
+            </li>
+            <li class="flex flex-row basis-1/10 items-center justify-center w-1/4 peer-has-[:focus]:basis-1/4 ease-in-out hover:border-b-4 hover:border-b-blue-500 hover:text-blue-700 ml-2">
                 <a href="saved/{{username}}" class="px-4 py-2" id="sbutton">Saved</a>
             </li>
         </ul>
@@ -52,7 +52,13 @@ Target Ship Date: 2025-06-06
         </ul>
     </nav>
 
-    <div>
+    <div class="grid place-content-center static space-y-8 py-10 w-1/2 m-auto my-20 rounded-md border border-blue-500 border-2 bg-white px-5 ">
+        <h1 class="text-3xl text-center">Welcome to ξ !</h1>
+        <p>The one stop key to success for all your learning. We have crawled and scraped through the web for you to compile an all in one, one step textbook archive where you will be able to find all your textbooks in minimal time and maximum efficiency all in one search! Through our application, you will be able to find your textbooks, save them to your account, and download them to your local device. All for free !!!</p>
+        <p class="text-right text-xl text-bold"> - 404NotFound</p>
+
+        </br>
+        <p>Start your journey by searching up a material!</p>
     </div>
 </body>
 
