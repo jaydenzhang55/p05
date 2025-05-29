@@ -91,6 +91,7 @@ def solution():
                 video_count = getGeminiVideo(api_key, prompt)
     
     return render_template("solutions.html", explanation=explanation, prompt=prompt, video=video, loggedIn="true")
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if signed_in():
@@ -132,25 +133,25 @@ def search():
     if request.method == 'POST':
         search_term = request.form.get('search')
 
+        matched_pdfs = db.searchForPDF(search_term)
+
+        boolean = False
+        lists = []
+
+        if matched_pdfs:
+            lists = matched_pdfs
+            boolean = True
+        
+        
+
         if signed_in():
-            # Try to search for matching PDFs
-            matched_pdfs = db.searchForPDF(search_term)
-            
-            if matched_pdfs:
-                # If matches found, show them
                 return render_template(
-                    "search.html",loggedIn="true",search=search_term, searchFound = True, list=matched_pdfs, boolean=True, secondBool=True, username=session["username"]
-                )
-            else:
-                # No matches found, show all PDFs in DB
-                all_pdfs = db.getAllPDFs()  
-                return render_template(
-                    "search.html",loggedIn="true",search=search_term,searchFound = False, list=all_pdfs,boolean=False,secondBool=True,username=session["username"]
+                    "search.html",loggedIn="true",search=search_term, searchFound = boolean, list=lists, boolean=boolean, username=session["username"]
                 )
         else:
             # Not signed in
             return render_template(
-                "search.html",loggedIn="false",search=search_term,boolean=False,username=None
+                "search.html",loggedIn="false",search=search_term,searchFound=boolean, list=lists, boolean=boolean,username=None
             )
 
 
