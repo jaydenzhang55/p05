@@ -29,11 +29,6 @@ upload_folder = 'static/images'
 allowed_extensions = {'png', 'jpg', 'jpeg', 'gif'}
 app.config['upload_folder'] = upload_folder
 
-##image configuration
-upload_folder = 'static/images'
-allowed_extensions = {'png', 'jpg', 'jpeg', 'gif'}
-app.config['upload_folder'] = upload_folder
-
 def signed_in():
     return 'username' in session.keys() and session['username'] is not None
 
@@ -108,21 +103,40 @@ def book(ISBN):
     
 @app.route('/search', methods=['GET', 'POST'])
 def search():
-    if request.method=='POST':
-        search = request.form.get('search')
+    if request.method == 'POST':
+        search_term = request.form.get('search')
+
         if signed_in():
-            if db.searchForPDF():
-                listOfPDFS = db.searchForPDF(search)
-                return render_template("search.html", loggedIn="true", search=search, list = listOfPDFS, boolean = True, secondBool = True)
+            # Try to search for matching PDFs
+            matched_pdfs = db.searchForPDF(search_term)
+            
+            if matched_pdfs:
+                # If matches found, show them
+                return render_template(
+                    "search.html",loggedIn="true",search=search_term,list=matched_pdfs, boolean=True, secondBool=True, username=session["username"]
+                )
             else:
-                listOfLinks = websiteLinkCreator(search)
-                links = []
-                for link in listOfLinks:
-                    links.append(getDownloadPDFLink(link))
-                
-                return render_template("search.html", loggedIn="true", search=search, list = None, boolean = False, secondBool = True)
+                # No matches found, show all PDFs in DB
+                all_pdfs = db.getAllPDFs()  
+                return render_template(
+                    "search.html",loggedIn="true",search=search_term,list=all_pdfs,boolean=False,secondBool=True,username=session["username"]
+                )
         else:
-            return render_template("search.html", loggedIn="false", search=search, boolean = False)
+            # Not signed in
+            return render_template(
+                "search.html",loggedIn="false",search=search_term,boolean=False,username=None
+            )
+
+    if signed_in():
+        all_pdfs = db.getAllPDFs()  
+        return render_template(
+            "search.html",loggedIn="true",search="",list=all_pdfs,boolean=True,secondBool=False,username=session["username"]
+        )
+    else:
+        return render_template(
+            "search.html",loggedIn="false",search="",boolean=False,username=None
+        )
+
     
 @app.route('/logout', methods=['GET', 'POST'])
 def logOut():
@@ -186,3 +200,4 @@ if __name__ == "__main__":
 #     app.run(host='0.0.0.0')
     app.debug = True
     app.run(host='127.0.0.1')
+
