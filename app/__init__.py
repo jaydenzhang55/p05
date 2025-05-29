@@ -8,7 +8,7 @@ Target Ship Date: 2025-06-06
 '''
 
 import os
-import db as db
+import app as db
 from flask import Flask
 from flask import render_template
 from flask import request
