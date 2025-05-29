@@ -56,7 +56,7 @@ def main():
     if signed_in():
         return render_template("index.html", loggedIn="true", username=session['username'])
     else:
-        return render_template("index.html", loggedIn="false", username='None')
+        return render_template("index.html", loggedIn="false", username='')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -90,30 +90,41 @@ def register():
             return redirect('/login')
         else:
             return render_template('register.html', message="Username already exists", loggedIn="false")
-    return render_template("register.html")
+    return render_template("register.html", loggedIn="false")
 
 @app.route('/saved/<username>', methods=['GET', 'POST'])
 def saved(username):
     if signed_in():
-        return render_template("saved.html", loggedIn="true")
+        return render_template("saved.html", loggedIn="true", username=session['username'])
     else:
-        return render_template("saved.html", loggedIn="false")
+        return render_template("saved.html", loggedIn="false", username='')
 
 @app.route('/book/<ISBN>', methods=['GET', 'POST'])
 def book(ISBN):
     if signed_in():
-        return render_template("book.html", loggedIn="true")
+        return render_template("book.html", loggedIn="true", username=session['username'])
     else:
-        return render_template("book.html", loggedIn="false")
+        return render_template("book.html", loggedIn="false", username='')
     
 @app.route('/search', methods=['GET', 'POST'])
 def search():
     if request.method=='POST':
         search = request.form.get('search')
-        if signed_in():
-            return render_template("search.html", loggedIn="true", search=search)
+        userRequest = request.form.get('request')
+        if userRequest is not None:
+            link = getDownloadPDFLink(websiteLinkCreator(userRequest))
+            PDF(link, userRequest)
+        pdfs = db.searchForPDF(search)
+        searchFound = "true"
+        searchResult = []
+        if pdfs is None:
+            searchFound = "false"
         else:
-            return render_template("search.html", loggedIn="false", search=search)
+            searchResult = pdfs
+        if signed_in():
+            return render_template("search.html", loggedIn="true", search=search, username=session['username'], searchFound=searchFound, searchResult=searchResult)
+        else:
+            return render_template("search.html", loggedIn="false", search=search, username='', searchFound=searchFound, searchResult=searchResult)
     
 @app.route('/logout', methods=['GET', 'POST'])
 def logOut():
