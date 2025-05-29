@@ -54,9 +54,9 @@ def check_password(username, password):
 @app.route('/', methods=['GET', 'POST'])
 def main():
     if signed_in():
-        return render_template("index.html", loggedIn="true", username=session['username'])
+        return render_template("index.html", loggedIn=True, username=session['username'])
     else:
-        return render_template("index.html", loggedIn="false", username='None')
+        return render_template("index.html", loggedIn=False, username='None')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -66,13 +66,13 @@ def login():
         username = request.form.get('username')
         password = request.form.get('pw')
         if not check_user(username):
-            return render_template("login.html", message="No such username exists", loggedIn="false")
+            return render_template("login.html", message="No such username exists", loggedIn=True)
         if not check_password(username, password):
-            return render_template("login.html", message="Incorrect password", loggedIn="false")
+            return render_template("login.html", message="Incorrect password", loggedIn=False)
         session['username'] = username
         session["password"] = request.form.get("pw")
         return redirect('/')
-     return render_template("login.html", loggedIn="false")
+     return render_template("login.html", loggedIn=False)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -89,31 +89,31 @@ def register():
             session["password"] = password
             return redirect('/login')
         else:
-            return render_template('register.html', message="Username already exists", loggedIn="false")
-    return render_template("register.html", loggedIn="false")
+            return render_template('register.html', message="Username already exists", loggedIn=False)
+    return render_template("register.html", loggedIn=False)
 
 @app.route('/saved/<username>', methods=['GET', 'POST'])
 def saved(username):
     if signed_in():
-        return render_template("saved.html", loggedIn="true", username=session['username'])
+        return render_template("saved.html", loggedIn=True, username=session['username'])
     else:
-        return render_template("saved.html", loggedIn="false")
+        return render_template("saved.html", loggedIn=False)
 
 @app.route('/book/<ISBN>', methods=['GET', 'POST'])
 def book(ISBN):
     if signed_in():
-        return render_template("book.html", loggedIn="true", username=session['username'])
+        return render_template("book.html", loggedIn=True, username=session['username'])
     else:
-        return render_template("book.html", loggedIn="false")
+        return render_template("book.html", loggedIn=False)
     
 @app.route('/search', methods=['GET', 'POST'])
 def search():
     if request.method=='POST':
         search = request.form.get('search')
         if signed_in():
-            return render_template("search.html", loggedIn="true", search=search, username=session['username'])
+            return render_template("search.html", loggedIn=True, search=search, username=session['username'])
         else:
-            return render_template("search.html", loggedIn="false", search=search)
+            return render_template("search.html", loggedIn=False, search=search)
     
 @app.route('/logout', methods=['GET', 'POST'])
 def logOut():
