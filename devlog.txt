@@ -70,3 +70,9 @@ Most Useful/Appreciated by Developers:
 Example:
 ```const handleUpload = async (event) => {}```
 Clear use of const, arrow function, and asynchronous handling in a concise, modern format.
+
+dannyH -- 2025-05-28 11:33
+  - Filled up landing page.
+  - Fixed JS errors when sending requests to JS through the html from Python
+  - Used JS to create error screen in Search when search result is not found
+
