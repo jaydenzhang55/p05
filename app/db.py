@@ -137,7 +137,6 @@ def storePDF(title, file_path, data):
         cur.execute("INSERT INTO pdfs(title, pdf_data) VALUES (?, ?)", (title, blob_data))
         db.commit()
 
-
 # def searchForPDF(title):
 #     db = sqlite3.connect(DB_FILE)
 #     cur = db.cursor()
@@ -206,3 +205,4 @@ def searchForPDFData(keyword):
     db.close()
     return [row[0] for row in results]
 
+#storePDF('Brocks Biology of Microorganisms', "./static/Brock Biology of Microorganisms.pdf", None)

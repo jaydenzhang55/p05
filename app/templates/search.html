@@ -11,6 +11,7 @@
         var loggedIn = {{ loggedIn | tojson }};
         var user = loggedIn === "true" ? {{ username | tojson }} : null;
         var search = {{ search | tojson }};
+        var searchFound = {{searchFound}};
     </script>
     {% endblock %}
     <title>Search</title>
@@ -28,22 +29,29 @@
                         value="{{ search }}">
                 </form>
             </li>
+            <li class="basis-1/10 hover:border-b-4 hover:border-b-blue-500 hover:text-blue-700 ml-2">
+                <a href="/upload" class="px-4 py-2">Upload</a>
+            </li>
+            <li class="basis-1/10 hover:border-b-4 hover:border-b-blue-500 hover:text-blue-700 ml-2">
+                <a href="/saved/{{username}}" class="px-4 py-2" id="sbutton">Saved</a>
+            </li>
+        </ul>
+        <ul class="basis-7/24 flex flex-row-reverse order last h-full text-center items-center text-xl">
             {% if loggedIn == "true" %}
-            <li
-                class="flex flex-row basis-1/2 items-center justify-center w-1/4 hover:border-b-4 hover:border-b-blue-500 hover:text-blue-700 ml-2">
-                <a href="saved/{{username}}" class="px-4 py-2">Saved</a>
+            <li class="flex items-center px-4">
+                <a href="/login"
+                    class="px-4 py-2 rounded-3xl transition bg-blue-600 text-white hover:bg-blue-500 hover:scale-105"
+                    id="loginButton">Log In</a>
+            </li>
+            <li class="flex items-center">
+                <a id='lmessage' class="px-4 py-2"></a>
+            </li>
+            {% else %}
+            <li>
+            <a href="/login"
+            class="px-4 py-2 rounded-3xl bg-blue-600 text-white hover:bg-blue-500 hover:scale-105">Log In</a>
             </li>
             {% endif %}
-        </ul>
-        <ul class="basis-7/24 flex flex-row-reverse items-center text-xl">
-            <li class="flex items-center px-4">
-                {% if loggedIn == "false" %}
-                <a href="/login"
-                    class="px-4 py-2 rounded-3xl bg-blue-600 text-white hover:bg-blue-500 hover:scale-105">Log In</a>
-                {% else %}
-                <span class="text-blue-600 font-semibold">Welcome, {{ username }}</span>
-                {% endif %}
-            </li>
         </ul>
     </nav>
 
@@ -62,11 +70,9 @@
                         </button>
                     </form>
                     {% endfor %}
-                {% else %}
-                <p class="text-gray-500">No PDFs found. Try a different search.</p>
                 {% endif %}
 
-                {% if secondBool %}
+                <!-- {% if secondBool %}
                 <form method="POST" action="/scrape">
                     <input type="hidden" name="search" value="{{ search }}">
                     <button type="submit"
@@ -74,7 +80,7 @@
                         Search for Textbook Online
                     </button>
                 </form>
-                {% endif %}
+                {% endif %} -->
 
                 {% if error %}
                 <div class="text-red-600 mt-4">{{ error }}</div>
