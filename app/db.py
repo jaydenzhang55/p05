@@ -121,13 +121,26 @@ def validatePassword(hash, password):
     print("Matches Hash: " + str(bcrypt.checkpw(password.encode("utf-8"), hash)))
     return bcrypt.checkpw(password.encode("utf-8"), hash)
 
+<<<<<<< HEAD
+def storePDF(title, file_path):
+=======
 def storePDF(title, file_path, data):
+>>>>>>> 0eab1a1391761cda0cca10e6a9831a50cc005420
     with sqlite3.connect(DB_FILE) as db:
         cur = db.cursor()
         cur.execute("SELECT COUNT(*) FROM pdfs WHERE title = ?", (title,))
         if cur.fetchone()[0] > 0:
             print(f"PDF with title '{title}' already exists.")
             return
+<<<<<<< HEAD
+
+        with open(file_path, 'rb') as f:
+            blob_data = f.read()
+        cur.execute("INSERT INTO pdfs(title, pdf_data) VALUES (?, ?)", (title, blob_data))
+        db.commit()
+
+
+=======
         if file_path != None:
             with open(file_path, 'rb') as f:
                 blob_data = f.read()
@@ -137,6 +150,7 @@ def storePDF(title, file_path, data):
         db.commit()
 
 
+>>>>>>> 0eab1a1391761cda0cca10e6a9831a50cc005420
 # def searchForPDF(title):
 #     db = sqlite3.connect(DB_FILE)
 #     cur = db.cursor()
@@ -167,4 +181,16 @@ def searchForPDF(keyword):
     db.close()
     return [row[0] for row in results]
 
+<<<<<<< HEAD
+def searchForPDFData(keyword):
+    db = sqlite3.connect(DB_FILE)
+    cur = db.cursor()
+    cur.execute("SELECT pdf_data FROM pdfs WHERE title LIKE ?", ('%' + keyword + '%',))
+    results = cur.fetchall()
+    db.close()
+    return [row[0] for row in results]
+
+storePDF('Brocks Biology of Microorganisms', "./static/temp/Brock Bio.pdf")
+=======
 #storePDF('Brocks Biology of Microorganisms', "./static/Brock Biology of Microorganisms.pdf", None)
+>>>>>>> 0eab1a1391761cda0cca10e6a9831a50cc005420
