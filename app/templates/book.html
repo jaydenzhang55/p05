@@ -14,7 +14,28 @@ Target Ship Date: 2025-06-06
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
-    <title>Display</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.9.179/pdf.min.js"></script>
+    <style>
+        #pdf-render {
+            border: 1px solid #ddd;
+            max-width: 100%;
+            height: auto;
+            margin: 20px auto;
+            display: block;
+            box-shadow: 0 0 10px #aaa;
+        }
+    </style>
+    <title>Display PDF</title>
+    <script src="../static/js/main.js"></script>
+    {% block javascript %}
+    <script>
+        var loggedIn = {{ loggedIn }};
+        var user;
+        if (loggedIn) {
+            user = {{ username | tojson }};
+        };
+    </script>
+    {% endblock %}
 </head>
 
 
@@ -46,10 +67,55 @@ Target Ship Date: 2025-06-06
             </li>
         </ul>
     </nav>
+    
+    <div id="pdf-container" class="flex flex-col items-center justify-center mt-6"></div>
 
-    <div>
-        
-    </div>
+    <script>
+    const pdfB64 = `{{ pdf_b64 | safe }}`;
+
+    if (!pdfB64) {
+        document.getElementById('pdf-container').insertAdjacentText('beforebegin', "No PDF data available.");
+    } else {
+        function base64ToUint8Array(base64) {
+            const raw = atob(base64);
+            const uint8Array = new Uint8Array(raw.length);
+            for (let i = 0; i < raw.length; i++) {
+                uint8Array[i] = raw.charCodeAt(i);
+            }
+            return uint8Array;
+        }
+
+        const pdfData = base64ToUint8Array(pdfB64);
+        const container = document.getElementById('pdf-container');
+
+        pdfjsLib.getDocument({ data: pdfData }).promise.then(function (pdfDoc) {
+            const numPages = pdfDoc.numPages;
+
+            for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+                pdfDoc.getPage(pageNum).then(function (page) {
+                    const scale = 1.5;
+                    const viewport = page.getViewport({ scale: scale });
+
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
+
+                    container.appendChild(canvas);
+
+                    const renderContext = {
+                        canvasContext: ctx,
+                        viewport: viewport
+                    };
+                    page.render(renderContext);
+                });
+            }
+        }).catch(function (error) {
+            console.error('Error loading PDF:', error);
+            document.getElementById('pdf-container').insertAdjacentText('beforebegin', "Failed to load PDF.");
+        });
+    }
+    </script>
 </body>
 
 </html>
