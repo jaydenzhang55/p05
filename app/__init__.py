@@ -7,6 +7,7 @@ Time spent: tbd
 Target Ship Date: 2025-06-06
 '''
 
+import base64
 import os
 import app as db
 from flask import Flask
@@ -15,6 +16,9 @@ from flask import request
 from flask import session
 from flask import redirect
 from flask import url_for
+from flask import send_file
+from flask import Response
+from io import BytesIO
 
 import pikepdf
 import requests
@@ -23,11 +27,6 @@ from bs4 import BeautifulSoup
 app = Flask(__name__)
 secret = os.urandom(32)
 app.secret_key = secret
-
-##image configuration
-upload_folder = 'static/images'
-allowed_extensions = {'png', 'jpg', 'jpeg', 'gif'}
-app.config['upload_folder'] = upload_folder
 
 ##image configuration
 upload_folder = 'static/images'
@@ -99,32 +98,54 @@ def saved(username):
     else:
         return render_template("saved.html", loggedIn="false", username='')
 
-@app.route('/book/<ISBN>', methods=['GET', 'POST'])
-def book(ISBN):
+@app.route('/book', methods=['GET', 'POST'])
+def book():
     if signed_in():
-        return render_template("book.html", loggedIn="true", username=session['username'])
+        title = request.form.get("title")
+        pdf_data = db.searchForPDFData(title)[0]
+
+        if pdf_data:
+            pdf_b64 = base64.b64encode(pdf_data).decode('utf-8')
+            return render_template("book.html", loggedIn="true", username=session['username'], title=title, pdf_b64=pdf_b64)
     else:
         return render_template("book.html", loggedIn="false", username='')
     
 @app.route('/search', methods=['GET', 'POST'])
 def search():
-    if request.method=='POST':
-        search = request.form.get('search')
-        userRequest = request.form.get('request')
-        if userRequest is not None:
-            link = getDownloadPDFLink(websiteLinkCreator(userRequest))
-            PDF(link, userRequest)
-        pdfs = db.searchForPDF(search)
-        searchFound = "true"
-        searchResult = []
-        if pdfs is None:
-            searchFound = "false"
-        else:
-            searchResult = pdfs
+    if request.method == 'POST':
+        search_term = request.form.get('search')
+
         if signed_in():
-            return render_template("search.html", loggedIn="true", search=search, username=session['username'], searchFound=searchFound, searchResult=searchResult)
+            # Try to search for matching PDFs
+            matched_pdfs = db.searchForPDF(search_term)
+            
+            if matched_pdfs:
+                # If matches found, show them
+                return render_template(
+                    "search.html",loggedIn="true",search=search_term,list=matched_pdfs, boolean=True, secondBool=True, username=session["username"]
+                )
+            else:
+                # No matches found, show all PDFs in DB
+                all_pdfs = db.getAllPDFs()  
+                return render_template(
+                    "search.html",loggedIn="true",search=search_term,list=all_pdfs,boolean=False,secondBool=True,username=session["username"]
+                )
         else:
-            return render_template("search.html", loggedIn="false", search=search, username='', searchFound=searchFound, searchResult=searchResult)
+            # Not signed in
+            return render_template(
+                "search.html",loggedIn="false",search=search_term,boolean=False,username=None
+            )
+
+    if signed_in():
+        all_pdfs = db.getAllPDFs()  
+        return render_template(
+            "search.html",loggedIn="true",search="",list=all_pdfs,boolean=True,secondBool=False,username=session["username"]
+        )
+    else:
+        return render_template(
+            "search.html",loggedIn="false",search="",boolean=False,username=None
+        )
+
     
 @app.route('/logout', methods=['GET', 'POST'])
 def logOut():
@@ -132,6 +153,18 @@ def logOut():
     session.pop('password', None)
     return redirect('/')
     
+@app.route('/upload', methods=['GET', 'POST'])
+def upload():
+    if signed_in():
+        if request.method == 'POST':
+            title = request.form.get('title')
+            pdf = request.files.get('pdf')
+            pdfdata = pdf.read()
+            db.storePDF(title, None, pdfdata)
+            return render_template("upload.html", message = "upload successful", loggedIn="true", username=session['username'])
+        return render_template("upload.html", loggedIn="true", username=session['username'])
+    return redirect('/login')
+
 def compress_pdf_pikepdf(input_path, output_path):
     with pikepdf.open(input_path) as pdf:
         pdf.save(output_path, optimize_version=True, compression=pikepdf.CompressionLevel.compression_default)
@@ -177,7 +210,7 @@ def PDF(chosenLink, query):
     compressedPath = "compressed.pdf"
     download_pdf_file("https://annas-archive.org" + listOfLinks[0], originalPath)
     compress_pdf_pikepdf(originalPath, compressedPath)
-    db.storePDF(query, compressedPath)
+    db.storePDF(query, compressedPath, None)
 
     os.remove(originalPath)
     os.remove(compressedPath)
@@ -188,8 +221,4 @@ if __name__ == "__main__":
 #     app.run(host='0.0.0.0')
     app.debug = True
     app.run(host='127.0.0.1')
-    
-
- 
-
 

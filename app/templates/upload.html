@@ -1,0 +1,84 @@
+<!--
+Jayden Zhang, Margie Cao, Danny Huang, Kyle Lee
+404NotFound
+SoftDev
+P04
+Time spent: tbd
+Target Ship Date: 2025-06-06
+-->
+
+<!DOCTYPE html>
+<html lang='en'>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Upload PDF</title>
+    <script src="../static/js/main.js"></script>
+    {% block javascript %}
+        <script>
+            var loggedIn = {{loggedIn}};
+            var user;
+            if (loggedIn){
+                user = {{ username | tojson }};
+            }
+        </script>
+    {% endblock %}
+</head>
+
+<body class="bg-white text-black font-sans">
+    <nav class="flex flex-row justify-between items-center h-20 w-full bg-white border border-b-gray-300 shadow-md">
+        <a href="/"><h1 class="basis-7/24 ml-10 text-blue-700 text-4xl font-bold">ξ</h1></a>
+        <ul id="navItem"
+            class="basis-5/12 flex flex-row justify-evenly items-center text-xl">
+            <li class="basis-1/2">
+                <form method="POST" action="/search" id='searchBar' class="w-full">
+                    <input class="border w-full p-2 text-blue-800 rounded-md" type="text" id="search"
+                        name="search" placeholder="Search">
+                </form>
+            </li>
+            <li class="basis-1/2 hover:border-b-4 hover:border-b-blue-500 hover:text-blue-700 ml-2">
+                <a href="/saved/{{username}}" class="px-4 py-2" id="sbutton">Saved</a>
+            </li>
+        </ul>
+        <ul class="basis-7/24 flex flex-row-reverse items-center text-xl">
+            <li class="px-4">
+                <a href="/login"
+                    class="px-4 py-2 rounded-3xl transition bg-blue-600 text-white hover:bg-blue-500 hover:scale-105"
+                    id="loginButton">Log In</a>
+            </li>
+            <li>
+                <a id='lmessage' class="px-4 py-2"></a>
+            </li>
+        </ul>
+    </nav>
+
+    <main class="p-10 max-w-xl mx-auto">
+        <h2 class="text-2xl font-semibold mb-6 text-blue-700">Upload a PDF</h2>
+        <form action="/upload" method="POST" enctype="multipart/form-data" class="space-y-6">
+            <div>
+                <label for="title" class="block text-lg font-medium">Title of PDF</label>
+                <input type="text" id="title" name="title" required
+                    class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <div>
+                <label for="pdf" class="block text-lg font-medium">PDF</label>
+                <input type="file" id="pdf" name="pdf" accept="application/pdf" required
+                    class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <button type="submit"
+                class="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500 transition">
+                Upload
+            </button>
+            <br>
+        {% if message %}
+            {{ message }}
+        {% endif %}
+        </form>
+    </main>
+</body>
+
+</html>

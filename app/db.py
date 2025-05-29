@@ -1,8 +1,8 @@
 import sqlite3, requests, os
 from flask import session
 import bcrypt
+from collections import defaultdict
 
-#Create SQLite Table, creates if not already made
 DB_FILE = os.path.join(os.path.dirname(__file__), "../database.db")
 
 db = sqlite3.connect(DB_FILE)
@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS users (
     password TEXT NOT NULL
 );
 ''')
+cur.execute("CREATE TABLE IF NOT EXISTS pdfs(id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, pdf_data BLOB)")
 db.commit()
 db.close()
 
@@ -29,7 +30,7 @@ def pdfTable():
     try:
         db = sqlite3.connect(DB_FILE)
         cur = db.cursor()
-        cur.execute("CREATE TABLE IF NOT EXISTS pdfs (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, pdf_data BLOB)")
+        cur.execute("CREATE TABLE IF NOT EXISTS pdfs(id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, pdf_data BLOB)")
         db.commit()
     except sqlite3.Error as e:
         print(f"Database error: {e}")
@@ -121,25 +122,106 @@ def validatePassword(hash, password):
     print("Matches Hash: " + str(bcrypt.checkpw(password.encode("utf-8"), hash)))
     return bcrypt.checkpw(password.encode("utf-8"), hash)
 
-def storePDF(title, filePath):
-    with open(filePath, 'rb') as file:
-        blob_data = file.read()
+<<<<<<< HEAD
+def storePDF(title, file_path):
+=======
+def storePDF(title, file_path, data):
+>>>>>>> 0eab1a1391761cda0cca10e6a9831a50cc005420
+    with sqlite3.connect(DB_FILE) as db:
+        cur = db.cursor()
+        cur.execute("SELECT COUNT(*) FROM pdfs WHERE title = ?", (title,))
+        if cur.fetchone()[0] > 0:
+            print(f"PDF with title '{title}' already exists.")
+            return
+<<<<<<< HEAD
 
-    cur.execute("INSERT INTO pdfs (title, pdf_data) VALUES (?, ?)", (title, blob_data))
-    db.commit()
+        with open(file_path, 'rb') as f:
+            blob_data = f.read()
+        cur.execute("INSERT INTO pdfs(title, pdf_data) VALUES (?, ?)", (title, blob_data))
+        db.commit()
 
-def searchForPDF(title):
+
+=======
+        if file_path != None:
+            with open(file_path, 'rb') as f:
+                blob_data = f.read()
+        else:
+            blob_data = data
+        cur.execute("INSERT INTO pdfs(title, pdf_data) VALUES (?, ?)", (title, blob_data))
+        db.commit()
+
+
+#>>>>>>> 0eab1a1391761cda0cca10e6a9831a50cc005420
+# def searchForPDF(title):
+#     db = sqlite3.connect(DB_FILE)
+#     cur = db.cursor()
+#     try:
+#         pdf = cur.execute(f"SELECT pdf_data FROM pdfs WHERE title='{title}'").fetchall()
+#     except sqlite3.Error as e:
+#         print(f"An error occurred: {e}")
+#         pdf = None
+#     finally: 
+#          cur.close()
+#          db.commit()
+#          db.close()
+#     return pdf
+
+def stringSplitter(text):
+    text = text.lower()
+    text2 = ''
+    for i in text:
+        if i.isalnum() or i.isspace():
+            text2 += i
+        else:
+            text2 += ' '
+    return text2.split()
+
+def getAllPDFs():
     db = sqlite3.connect(DB_FILE)
     cur = db.cursor()
-    try:
-        pdf = cur.execute(f"SELECT pdf_data FROM pdfs WHERE title='{title}'").fetchall()
-    except sqlite3.Error as e:
-        print(f"An error occurred: {e}")
-        pdf = None
-    finally: 
-         cur.close()
-         db.commit()
-         db.close()
-    return pdf
+    cur.execute("SELECT title FROM pdfs")  
+    results = cur.fetchall()
+    db.close()
+    return [row[0] for row in results]
 
-pdfTable()
+def searchForPDFII(query):
+    conn = sqlite3.connect(pdfs.db)
+    cursor = conn.cursor()
+    invertedIndex = defaultdict(set)
+    idTitle = {}
+    cursor.execute("SELECT id, title FROM pdfs")
+    for pdfID, title in cursor.fetchall():
+        idTitle[pdfID] = title
+        tokens = set(tokenize(title))
+        for token in tokens:
+            invertedIndex[token].add(pdfID)
+    queryTokens = stringSplitter(query)
+    if not queryTokens:
+        return []
+    result = inverted_index.get(queryTokens[0], set()).copy()
+    for token in queryTokens[1:]:
+        result &= invertedIndex.get(token, set())
+    conn.close()
+    return [(pdfID, idTitle[pdfID]) for pdfID in result]
+
+def searchForPDF(keyword):
+    db = sqlite3.connect(DB_FILE)
+    cur = db.cursor()
+    cur.execute("SELECT title FROM pdfs WHERE title LIKE ?", ('%' + keyword + '%',))
+    results = cur.fetchall()
+    db.close()
+    return [row[0] for row in results]
+
+#<<<<<<< HEAD
+def searchForPDFData(keyword):
+    db = sqlite3.connect(DB_FILE)
+    cur = db.cursor()
+    cur.execute("SELECT pdf_data FROM pdfs WHERE title LIKE ?", ('%' + keyword + '%',))
+    results = cur.fetchall()
+    db.close()
+    return [row[0] for row in results]
+
+storePDF('Brocks Biology of Microorganisms', "./static/temp/Brock Bio.pdf")
+=======
+#storePDF('Brocks Biology of Microorganisms', "./static/Brock Biology of Microorganisms.pdf", None)
+>>>>>>> 0eab1a1391761cda0cca10e6a9831a50cc005420
