@@ -2,7 +2,6 @@ import sqlite3, requests, os
 from flask import session
 import bcrypt
 
-#Create SQLite Table, creates if not already made
 DB_FILE = os.path.join(os.path.dirname(__file__), "../database.db")
 
 db = sqlite3.connect(DB_FILE)
@@ -16,6 +15,7 @@ CREATE TABLE IF NOT EXISTS users (
     password TEXT NOT NULL
 );
 ''')
+cur.execute("CREATE TABLE IF NOT EXISTS pdfs(id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, pdf_data BLOB)")
 db.commit()
 db.close()
 
@@ -29,7 +29,7 @@ def pdfTable():
     try:
         db = sqlite3.connect(DB_FILE)
         cur = db.cursor()
-        cur.execute("CREATE TABLE IF NOT EXISTS pdfs (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, pdf_data BLOB)")
+        cur.execute("CREATE TABLE IF NOT EXISTS pdfs(id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, pdf_data BLOB)")
         db.commit()
     except sqlite3.Error as e:
         print(f"Database error: {e}")
@@ -121,29 +121,48 @@ def validatePassword(hash, password):
     print("Matches Hash: " + str(bcrypt.checkpw(password.encode("utf-8"), hash)))
     return bcrypt.checkpw(password.encode("utf-8"), hash)
 
-def storePDF(title, filePath):
-    with open(filePath, 'rb') as file:
-        blob_data = file.read()
+def storePDF(title, file_path):
+    with sqlite3.connect(DB_FILE) as db:
+        cur = db.cursor()
+        cur.execute("SELECT COUNT(*) FROM pdfs WHERE title = ?", (title,))
+        if cur.fetchone()[0] > 0:
+            print(f"PDF with title '{title}' already exists.")
+            return
 
-    cur.execute("INSERT INTO pdfs (title, pdf_data) VALUES (?, ?)", (title, blob_data))
-    db.commit()
+        with open(file_path, 'rb') as f:
+            blob_data = f.read()
+        cur.execute("INSERT INTO pdfs(title, pdf_data) VALUES (?, ?)", (title, blob_data))
+        db.commit()
 
-def searchForPDF(title):
+
+# def searchForPDF(title):
+#     db = sqlite3.connect(DB_FILE)
+#     cur = db.cursor()
+#     try:
+#         pdf = cur.execute(f"SELECT pdf_data FROM pdfs WHERE title='{title}'").fetchall()
+#     except sqlite3.Error as e:
+#         print(f"An error occurred: {e}")
+#         pdf = None
+#     finally: 
+#          cur.close()
+#          db.commit()
+#          db.close()
+#     return pdf
+
+def getAllPDFs():
     db = sqlite3.connect(DB_FILE)
     cur = db.cursor()
-    try:
-        pdf = cur.execute(f"SELECT pdf_data FROM pdfs WHERE title='{title}'").fetchall()
-    except sqlite3.Error as e:
-        print(f"An error occurred: {e}")
-        pdf = None
-    finally: 
-         cur.close()
-         db.commit()
-         db.close()
-<<<<<<< HEAD
-    return pdf
-=======
-    return pdf
+    cur.execute("SELECT title FROM pdfs")  
+    results = cur.fetchall()
+    db.close()
+    return [row[0] for row in results]
 
-pdfTable()
->>>>>>> 981e9f1692f2472d88d08447df3e95392639c1c1
+def searchForPDF(keyword):
+    db = sqlite3.connect(DB_FILE)
+    cur = db.cursor()
+    cur.execute("SELECT title FROM pdfs WHERE title LIKE ?", ('%' + keyword + '%',))
+    results = cur.fetchall()
+    db.close()
+    return [row[0] for row in results]
+
+storePDF('Brocks Biology of Microorganisms', "./static/temp/Brock Biology of Microorganisms.pdf")
