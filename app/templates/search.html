@@ -57,7 +57,9 @@
                     <form method="POST" action="/book"
                         class="transition ease-in-out duration-500 px-6 py-4 my-4 bg-blue-100 hover:bg-blue-800 hover:text-white rounded-md cursor-pointer">
                         <input type="hidden" name="title" value="{{ pdf }}">
-                        <div class="font-bold">{{ pdf }}</div>
+                        <button type="submit" class="w-full text-left font-bold">
+                            {{ pdf }}
+                        </button>
                     </form>
                     {% endfor %}
                 {% else %}
