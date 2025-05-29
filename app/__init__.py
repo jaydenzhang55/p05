@@ -7,6 +7,7 @@ Time spent: tbd
 Target Ship Date: 2025-06-06
 '''
 
+import base64
 import os
 import db as db
 from flask import Flask
@@ -15,6 +16,9 @@ from flask import request
 from flask import session
 from flask import redirect
 from flask import url_for
+from flask import send_file
+from flask import Response
+from io import BytesIO
 
 import pikepdf
 import requests
@@ -94,10 +98,15 @@ def saved(username):
     else:
         return render_template("saved.html", loggedIn="false", username='')
 
-@app.route('/book/<ISBN>', methods=['GET', 'POST'])
-def book(ISBN):
+@app.route('/book', methods=['GET', 'POST'])
+def book():
     if signed_in():
-        return render_template("book.html", loggedIn="true", username=session['username'])
+        title = request.form.get("title")
+        pdf_data = db.searchForPDFData(title)[0]
+
+        if pdf_data:
+            pdf_b64 = base64.b64encode(pdf_data).decode('utf-8')
+            return render_template("book.html", loggedIn="true", username=session['username'], title=title, pdf_b64=pdf_b64)
     else:
         return render_template("book.html", loggedIn="false", username='')
     
