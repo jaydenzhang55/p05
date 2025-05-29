@@ -9,7 +9,7 @@ Target Ship Date: 2025-06-06
 
 import base64
 import os
-import db as db
+from app import db as db 
 from flask import Flask
 from flask import render_template
 from flask import request
@@ -19,7 +19,7 @@ from flask import url_for
 from flask import send_file
 from flask import Response
 from io import BytesIO
-from Solutions import *
+from app import Solutions
 import pikepdf
 import requests
 from bs4 import BeautifulSoup
