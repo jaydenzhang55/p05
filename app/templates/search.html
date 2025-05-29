@@ -8,7 +8,7 @@
     <script src="../static/js/main.js"></script>
     {% block javascript %}
     <script>
-        var loggedIn = {{ loggedIn | tojson }}; 
+        var loggedIn = {{ loggedIn }}; 
         var user = loggedIn ? {{ username | tojson }} : null;
         var search = {{ search | tojson }};
         var searchFound = {{searchFound |tojson }};
