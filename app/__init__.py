@@ -118,15 +118,15 @@ def saved(username):
 
 @app.route('/book', methods=['GET', 'POST'])
 def book():
-    if signed_in():
-        title = request.form.get("title")
-        pdf_data = db.searchForPDFData(title)[0]
+    title = request.form.get("title")
+    pdf_data = db.searchForPDFData(title)[0]
 
-        if pdf_data:
-            pdf_b64 = base64.b64encode(pdf_data).decode('utf-8')
+    if pdf_data:
+        pdf_b64 = base64.b64encode(pdf_data).decode('utf-8')
+    if signed_in():
             return render_template("book.html", loggedIn="true", username=session['username'], title=title, pdf_b64=pdf_b64)
     else:
-        return render_template("book.html", loggedIn="false", username='')
+        return render_template("book.html", loggedIn="false", username='', title=title, pdf_b64=pdf_b64)
     
 @app.route('/search', methods=['GET', 'POST'])
 def search():
