@@ -1,6 +1,7 @@
 import sqlite3, requests, os
 from flask import session
 import bcrypt
+from collections import defaultdict
 
 DB_FILE = os.path.join(os.path.dirname(__file__), "../database.db")
 
@@ -150,7 +151,7 @@ def storePDF(title, file_path, data):
         db.commit()
 
 
->>>>>>> 0eab1a1391761cda0cca10e6a9831a50cc005420
+#>>>>>>> 0eab1a1391761cda0cca10e6a9831a50cc005420
 # def searchForPDF(title):
 #     db = sqlite3.connect(DB_FILE)
 #     cur = db.cursor()
@@ -165,6 +166,16 @@ def storePDF(title, file_path, data):
 #          db.close()
 #     return pdf
 
+def stringSplitter(text):
+    text = text.lower()
+    text2 = ''
+    for i in text:
+        if i.isalnum() or i.isspace():
+            text2 += i
+        else:
+            text2 += ' '
+    return text2.split()
+
 def getAllPDFs():
     db = sqlite3.connect(DB_FILE)
     cur = db.cursor()
@@ -172,6 +183,26 @@ def getAllPDFs():
     results = cur.fetchall()
     db.close()
     return [row[0] for row in results]
+
+def searchForPDFII(query):
+    conn = sqlite3.connect(pdfs.db)
+    cursor = conn.cursor()
+    invertedIndex = defaultdict(set)
+    idTitle = {}
+    cursor.execute("SELECT id, title FROM pdfs")
+    for pdfID, title in cursor.fetchall():
+        idTitle[pdfID] = title
+        tokens = set(tokenize(title))
+        for token in tokens:
+            invertedIndex[token].add(pdfID)
+    queryTokens = stringSplitter(query)
+    if not queryTokens:
+        return []
+    result = inverted_index.get(queryTokens[0], set()).copy()
+    for token in queryTokens[1:]:
+        result &= invertedIndex.get(token, set())
+    conn.close()
+    return [(pdfID, idTitle[pdfID]) for pdfID in result]
 
 def searchForPDF(keyword):
     db = sqlite3.connect(DB_FILE)
@@ -181,7 +212,7 @@ def searchForPDF(keyword):
     db.close()
     return [row[0] for row in results]
 
-<<<<<<< HEAD
+#<<<<<<< HEAD
 def searchForPDFData(keyword):
     db = sqlite3.connect(DB_FILE)
     cur = db.cursor()
