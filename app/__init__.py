@@ -83,7 +83,8 @@ def solution():
         prompt = ""
         if request.method == "POST":
             #lowkey idk how to hide API keys
-            api_key = "AIzaSyDswIW_77_VcDIbXxi_qB-BD9ifUGETSXQ"
+            
+            api_key = getAIKey()
             prompt = request.form.get("prompt", "")
             if api_key and prompt:
                 explanation = getGeminiExplaination(api_key, prompt)
@@ -220,6 +221,10 @@ def PDF(chosenLink, query):
 
     os.remove(originalPath)
     os.remove(compressedPath)
+
+def getAIKey():
+    with open("app/keys/key_AI.txt", "r") as file:
+        return file.read().strip()
 
 
 if __name__ == "__main__":
