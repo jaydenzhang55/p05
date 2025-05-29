@@ -146,7 +146,6 @@ def search():
             "search.html",loggedIn="false",search="",boolean=False,username=None
         )
 
-    
 @app.route('/logout', methods=['GET', 'POST'])
 def logOut():
     session.pop('username', None)
