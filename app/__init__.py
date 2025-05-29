@@ -138,13 +138,13 @@ def search():
             if matched_pdfs:
                 # If matches found, show them
                 return render_template(
-                    "search.html",loggedIn="true",search=search_term,list=matched_pdfs, boolean=True, secondBool=True, username=session["username"]
+                    "search.html",loggedIn="true",search=search_term, searchFound = True, list=matched_pdfs, boolean=True, secondBool=True, username=session["username"]
                 )
             else:
                 # No matches found, show all PDFs in DB
                 all_pdfs = db.getAllPDFs()  
                 return render_template(
-                    "search.html",loggedIn="true",search=search_term,list=all_pdfs,boolean=False,secondBool=True,username=session["username"]
+                    "search.html",loggedIn="true",search=search_term,searchFound = False, list=all_pdfs,boolean=False,secondBool=True,username=session["username"]
                 )
         else:
             # Not signed in
@@ -152,15 +152,6 @@ def search():
                 "search.html",loggedIn="false",search=search_term,boolean=False,username=None
             )
 
-    if signed_in():
-        all_pdfs = db.getAllPDFs()  
-        return render_template(
-            "search.html",loggedIn="true",search="",list=all_pdfs,boolean=True,secondBool=False,username=session["username"]
-        )
-    else:
-        return render_template(
-            "search.html",loggedIn="false",search="",boolean=False,username=None
-        )
 
 @app.route('/logout', methods=['GET', 'POST'])
 def logOut():
