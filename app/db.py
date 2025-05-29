@@ -121,16 +121,18 @@ def validatePassword(hash, password):
     print("Matches Hash: " + str(bcrypt.checkpw(password.encode("utf-8"), hash)))
     return bcrypt.checkpw(password.encode("utf-8"), hash)
 
-def storePDF(title, file_path):
+def storePDF(title, file_path, data):
     with sqlite3.connect(DB_FILE) as db:
         cur = db.cursor()
         cur.execute("SELECT COUNT(*) FROM pdfs WHERE title = ?", (title,))
         if cur.fetchone()[0] > 0:
             print(f"PDF with title '{title}' already exists.")
             return
-
-        with open(file_path, 'rb') as f:
-            blob_data = f.read()
+        if file_path != None:
+            with open(file_path, 'rb') as f:
+                blob_data = f.read()
+        else:
+            blob_data = data
         cur.execute("INSERT INTO pdfs(title, pdf_data) VALUES (?, ?)", (title, blob_data))
         db.commit()
 
@@ -165,4 +167,4 @@ def searchForPDF(keyword):
     db.close()
     return [row[0] for row in results]
 
-storePDF('Brocks Biology of Microorganisms', "./static/temp/Brock Biology of Microorganisms.pdf")
+#storePDF('Brocks Biology of Microorganisms', "./static/Brock Biology of Microorganisms.pdf", None)

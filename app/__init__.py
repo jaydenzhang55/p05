@@ -144,6 +144,18 @@ def logOut():
     session.pop('password', None)
     return redirect('/')
     
+@app.route('/upload', methods=['GET', 'POST'])
+def upload():
+    if signed_in():
+        if request.method == 'POST':
+            title = request.form.get('title')
+            pdf = request.files.get('pdf')
+            pdfdata = pdf.read()
+            db.storePDF(title, None, pdfdata)
+            return render_template("upload.html", message = "upload successful", loggedIn="true", username=session['username'])
+        return render_template("upload.html", loggedIn="true", username=session['username'])
+    return redirect('/login')
+
 def compress_pdf_pikepdf(input_path, output_path):
     with pikepdf.open(input_path) as pdf:
         pdf.save(output_path, optimize_version=True, compression=pikepdf.CompressionLevel.compression_default)
@@ -189,7 +201,7 @@ def PDF(chosenLink, query):
     compressedPath = "compressed.pdf"
     download_pdf_file("https://annas-archive.org" + listOfLinks[0], originalPath)
     compress_pdf_pikepdf(originalPath, compressedPath)
-    db.storePDF(query, compressedPath)
+    db.storePDF(query, compressedPath, None)
 
     os.remove(originalPath)
     os.remove(compressedPath)
