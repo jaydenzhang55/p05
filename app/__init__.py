@@ -19,7 +19,7 @@ from flask import url_for
 from flask import send_file
 from flask import Response
 from io import BytesIO
-
+from .Solutions import *
 import pikepdf
 import requests
 from bs4 import BeautifulSoup
@@ -73,7 +73,23 @@ def login():
         return redirect('/')
      return render_template("login.html", loggedIn="false")
 
-
+@app.route('/solution', methods=['GET', 'POST'])
+def solution():
+    if not signed_in():
+        return render_template("login.html", message="Not logged in!", loggedIn="false")
+    else:
+        video = None 
+        explaination = None
+        prompt = ""
+        if request.method == "POST":
+            #lowkey idk how to hide API keys
+            api_key = "AIzaSyDswIW_77_VcDIbXxi_qB-BD9ifUGETSXQ"
+            prompt = request.form.get("prompt", "")
+            if api_key and prompt:
+                explanation = getGeminiExplaination(api_key, prompt)
+                video_count = getGeminiVideo(api_key, prompt)
+    
+    return render_template("solutions.html", explanation=explanation, prompt=prompt, video=video, loggedIn="true")
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if signed_in():
