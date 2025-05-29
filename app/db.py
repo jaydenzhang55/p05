@@ -119,5 +119,16 @@ def storePDF(title, filePath):
     cur.execute("INSERT INTO pdfs (title, pdf_data) VALUES (?, ?)", (title, blob_data))
     db.commit()
 
-def searchForPDF(query):
-    cur.execute("")
+def searchForPDF(title):
+    db = sqlite3.connect(DB_FILE)
+    cur = db.cursor()
+    try:
+        pdf = cur.execute(f"SELECT pdf_data FROM pdfs WHERE title='{title}'").fetchall()
+    except sqlite3.Error as e:
+        print(f"An error occurred: {e}")
+        pdf = None
+    finally: 
+         cur.close()
+         db.commit()
+         db.close()
+    return pdf

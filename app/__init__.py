@@ -111,9 +111,18 @@ def search():
     if request.method=='POST':
         search = request.form.get('search')
         if signed_in():
-            return render_template("search.html", loggedIn="true", search=search)
+            if db.searchForPDF():
+                listOfPDFS = db.searchForPDF(search)
+                return render_template("search.html", loggedIn="true", search=search, list = listOfPDFS, boolean = True, secondBool = True)
+            else:
+                listOfLinks = websiteLinkCreator(search)
+                links = []
+                for link in listOfLinks:
+                    links.append(getDownloadPDFLink(link))
+                
+                return render_template("search.html", loggedIn="true", search=search, list = None, boolean = False, secondBool = True)
         else:
-            return render_template("search.html", loggedIn="false", search=search)
+            return render_template("search.html", loggedIn="false", search=search, boolean = False)
     
 @app.route('/logout', methods=['GET', 'POST'])
 def logOut():
@@ -177,8 +186,3 @@ if __name__ == "__main__":
 #     app.run(host='0.0.0.0')
     app.debug = True
     app.run(host='127.0.0.1')
-    
-
- 
-
-
