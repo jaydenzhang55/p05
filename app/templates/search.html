@@ -8,8 +8,8 @@
     <script src="../static/js/main.js"></script>
     {% block javascript %}
     <script>
-        var loggedIn = {{ loggedIn }};
-        var user = loggedIn === "true" ? {{ username | tojson }} : null;
+        var loggedIn = {{ loggedIn | tojson }}; 
+        var user = loggedIn ? {{ username | tojson }} : null;
         var search = {{ search | tojson }};
         var searchFound = {{searchFound |tojson }};
     </script>

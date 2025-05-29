@@ -19,7 +19,7 @@ from flask import url_for
 from flask import send_file
 from flask import Response
 from io import BytesIO
-import Solutions
+import Solutions as sol
 import pikepdf
 import requests
 from bs4 import BeautifulSoup
@@ -87,8 +87,8 @@ def solution():
             api_key = getAIKey()
             prompt = request.form.get("prompt", "")
             if api_key and prompt:
-                explanation = getGeminiExplaination(api_key, prompt)
-                video_count = getGeminiVideo(api_key, prompt)
+                explanation = sol.getGeminiExplaination(api_key, prompt)
+                video_count = sol.getGeminiVideo(api_key, prompt)
     
     return render_template("solutions.html", explanation=explanation, prompt=prompt, video=video, loggedIn="true")
 
@@ -141,13 +141,12 @@ def search():
         if matched_pdfs:
             lists = matched_pdfs
             boolean = True
-        
-        
 
         if signed_in():
-                return render_template(
-                    "search.html",loggedIn="true",search=search_term, searchFound = boolean, list=lists, boolean=boolean, username=session["username"]
-                )
+            print(session['username'])
+            return render_template(
+                "search.html",loggedIn="true",search=search_term, searchFound = boolean, list=lists, boolean=boolean, username=session["username"]
+            )
         else:
             # Not signed in
             return render_template(
