@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function(){
             name.setAttribute('class', 'text-5xl border border-x-transparent border-y-blue-700 border-y-4 p-10 font-bold font-stretch-expanded')
             name.textContent = '404NotFound'
             const solution = document.createElement('p');
-            solution.textContent = "Please try again with another name or request to add to our archive."
+            solution.textContent = "Please try a different search, view all current pdfs, or upload your own to add to the archive."
             const request = document.createElement('form');
             const rbutton = document.createElement('button');
             rbutton.setAttribute('class', 'px-4 py-2 rounded-3xl transition bg-blue-600 text-white hover:bg-blue-500 hover:scale-105');
