@@ -90,7 +90,7 @@ def solution():
             explanation = sol.getGeminiExplaination(api_key, prompt)
             video = sol.getGeminiVideo(api_key, prompt)
 
-    return render_template("solutions.html", explanation=explanation, prompt=prompt, video=video, loggedIn="true")
+    return render_template("solutions.html",username = session['username'], explanation=explanation, prompt=prompt, video=video, loggedIn="true")
 
 
 @app.route('/register', methods=['GET', 'POST'])
