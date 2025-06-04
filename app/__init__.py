@@ -53,9 +53,31 @@ def check_password(username, password):
 @app.route('/', methods=['GET', 'POST'])
 def main():
     if signed_in():
+        if request.method == "POST":
+            request = request.form.get('request')
+            try:
+                websiteLinks = websiteLinkCreator(request)
+            except Exception as e:
+                print(e)
+
+            for link in websiteLinks:
+                try:
+                    downloadLinks = getDownloadPDFLink(link)
+                    for link in downloadLinks:
+                        PDF(link, request)
+                except Exception as e:
+                    print(e)
+            
+
         return render_template("index.html", loggedIn="true", username=session['username'])
     else:
         return render_template("index.html", loggedIn="false", username='')
+    
+@app.route('/tos', methods=['GET', 'POST'])
+def tos():
+    if signed_in():
+        return render_template("index.html", loggedIn="true", username=session['username'])
+    return render_template("tos.html", loggedIn="false", username='')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -153,7 +175,6 @@ def search():
                 "search.html",loggedIn="false",search=search_term,searchFound=boolean, list=lists, boolean=boolean,username=None
             )
 
-
 @app.route('/logout', methods=['GET', 'POST'])
 def logOut():
     session.pop('username', None)
@@ -182,28 +203,34 @@ def websiteLinkCreator(query):
     queryArray = query.split(' ')
     modification = ""
     for _ in range(len(queryArray)):
-        modification = queryArray[_]
+        if "'" in queryArray[_]:
+            queryArray[_].replace("'", "%27")
+        modification = queryArray[_] + "+"
     URL = "https://annas-archive.org/search?q=" + modification
     page = requests.get(URL)
 
     soup = BeautifulSoup(page.content, "html.parser")
 
-    for link in soup.find_all('a'):
-        print(link.get('href'))
-
-    return soup.find_all('a')
+    try:
+        for link in soup.find_all('a'):
+            print(link.get('href'))
+        return soup.find_all('a')
+    except:
+        raise Exception("no books found")
 
 def getDownloadPDFLink(chosenLink): 
-    URL = "https://annas-archive.org" + chosenLink
+    URL = "https://archive.org" + chosenLink
     page = requests.get(URL)
 
     soup = BeautifulSoup(page.content, "html.parser")
     listOfLinks = []
 
     for link in soup.find_all('a'):
-        if "slow" in link:
+        if "pdf" in link:
             listOfLinks.append(link)
 
+    if len(listOfLinks) == 0:
+        raise Exception("no download links found")
     return listOfLinks
 
 def download_pdf_file(download_url, output_path):
@@ -215,7 +242,7 @@ def PDF(chosenLink, query):
     listOfLinks = getDownloadPDFLink(chosenLink)
     originalPath = "downloaded.pdf"
     compressedPath = "compressed.pdf"
-    download_pdf_file("https://annas-archive.org" + listOfLinks[0], originalPath)
+    download_pdf_file("https://archive.org" + listOfLinks[0], originalPath)
     compress_pdf_pikepdf(originalPath, compressedPath)
     db.storePDF(query, compressedPath, None)
 
