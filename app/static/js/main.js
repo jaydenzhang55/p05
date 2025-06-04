@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', function(){
     else{
         const profile = document.getElementById('sbutton');
         const login = document.createElement('a');
+        login.setAttribute('class', 'px-4 py-2')
         login.href = '/login';
         login.textContent = "Saved";  
 

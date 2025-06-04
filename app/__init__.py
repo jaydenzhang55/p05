@@ -52,10 +52,11 @@ def check_password(username, password):
 
 @app.route('/', methods=['GET', 'POST'])
 def main():
+    all = db.getAllPDFs()
     if signed_in():
-        return render_template("index.html", loggedIn=True, username=session['username'])
+        return render_template("index.html", loggedIn=True, username=session['username'], all=all)
     else:
-        return render_template("index.html", loggedIn=False, username='')
+        return render_template("index.html", loggedIn=False, username='', all=all)
 
 
 @app.route('/login', methods=['GET', 'POST'])
