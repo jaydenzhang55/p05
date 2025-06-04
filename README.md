@@ -42,7 +42,7 @@ p05.jaydenzhang.me
 **OR**
 ### 1) In the directory, run the app
 ``` 
-$ python3 app/__init__.py
+$ python app/__init__.py
 ```
 ### 2) Copy the link below and paste into your browser to access the local host
 ```

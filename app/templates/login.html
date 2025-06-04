@@ -17,7 +17,7 @@ Target Ship Date: 2025-06-06
     <script src="../static/js/main.js"></script>
     {% block javascript %}
         <script>
-            var loggedIn = {{loggedIn}};
+            var loggedIn = {{loggedIn | tojson}};
         </script>
     {% endblock %} 
     <title>Log In</title>

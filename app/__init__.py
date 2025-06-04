@@ -99,20 +99,20 @@ def login():
 def solution():
     if not signed_in():
         return render_template("login.html", message="Not logged in!", loggedIn="false")
-    else:
-        video = None 
-        explaination = None
-        prompt = ""
-        if request.method == "POST":
-            #lowkey idk how to hide API keys
-            
-            api_key = getAIKey()
-            prompt = request.form.get("prompt", "")
-            if api_key and prompt:
-                explanation = sol.getGeminiExplaination(api_key, prompt)
-                video_count = sol.getGeminiVideo(api_key, prompt)
-    
-    return render_template("solutions.html", explanation=explanation, prompt=prompt, video=video, loggedIn="true")
+
+    video = None 
+    explanation = None
+    prompt = ""
+
+    if request.method == "POST":
+        api_key = getAIKey()
+        prompt = request.form.get("prompt", "")
+        if api_key and prompt:
+            explanation = sol.getGeminiExplaination(api_key, prompt)
+            video = sol.getGeminiVideo(api_key, prompt)
+
+    return render_template("solutions.html",username = session['username'], explanation=explanation, prompt=prompt, video=video, loggedIn="true")
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -133,8 +133,9 @@ def register():
 
 @app.route('/saved/<username>', methods=['GET', 'POST'])
 def saved(username):
+    save = db.getSaved()
     if signed_in():
-        return render_template("saved.html", loggedIn="true", username=session['username'])
+        return render_template("saved.html", loggedIn="true", username=session['username'], saves=save)
     else:
         return render_template("saved.html", loggedIn="false", username='')
 
@@ -259,4 +260,3 @@ if __name__ == "__main__":
 #     app.run(host='0.0.0.0')
     app.debug = True
     app.run(host='127.0.0.1')
-

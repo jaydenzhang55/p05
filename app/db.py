@@ -39,11 +39,36 @@ def pdfTable():
         db.commit()
         db.close()
 
+def saveTable():
+    try:
+        db = sqlite3.connect(DB_FILE)
+        cur = db.cursor()
+        cur.execute("CREATE TABLE IF NOT EXISTS saves(id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, pdf_data BLOB)")
+        db.commit()
+    except sqlite3.Error as e:
+        print(f"Database error: {e}")
+    finally:
+        cur.close()
+        db.commit()
+        db.close()
+
 def addUser(username, password):
     try:
         db = sqlite3.connect(DB_FILE)
         cur = db.cursor()
         cur.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, password))
+    except sqlite3.Error as e:
+        print(f"Database error: {e}")
+    finally:
+        cur.close()
+        db.commit()
+        db.close()
+
+def addSaveIDs(pdfid):
+    try:
+        db = sqlite3.connect(DB_FILE)
+        cur = db.cursor()
+        cur.execute("INSERT INTO users (saveIDs) VALUES (?)", (pdfid))
     except sqlite3.Error as e:
         print(f"Database error: {e}")
     finally:
@@ -165,6 +190,14 @@ def getAllPDFs():
     db = sqlite3.connect(DB_FILE)
     cur = db.cursor()
     cur.execute("SELECT title FROM pdfs")  
+    results = cur.fetchall()
+    db.close()
+    return [row[0] for row in results]
+
+def getSaved():
+    db = sqlite3.connect(DB_FILE)
+    cur = db.cursor()
+    cur.execute("SELECT title FROM saves")  
     results = cur.fetchall()
     db.close()
     return [row[0] for row in results]

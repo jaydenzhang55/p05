@@ -75,7 +75,7 @@ Target Ship Date: 2025-06-06
     {% if video %}
         <h2>Video</h2>
         <video width="640" height="360" controls>
-            <source src="{{ url_for('static', filename='video' + i|string + '.mp4') }}" type="video/mp4">
+            <source src="{{ url_for('static', filename=video) }}" type="video/mp4">21
         </video>
     {% endif %}
 
