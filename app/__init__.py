@@ -111,8 +111,9 @@ def register():
 
 @app.route('/saved/<username>', methods=['GET', 'POST'])
 def saved(username):
+    save = db.getSaved()
     if signed_in():
-        return render_template("saved.html", loggedIn="true", username=session['username'])
+        return render_template("saved.html", loggedIn="true", username=session['username'], saves=save)
     else:
         return render_template("saved.html", loggedIn="false", username='')
 
