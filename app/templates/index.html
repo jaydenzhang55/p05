@@ -34,11 +34,11 @@ Target Ship Date: 2025-06-06
                     <input class="border border-solid w-full p-2 text-blue-800 rounded-md" type="text" id="search"
                 name="search" placeholder="Search" autocomplete="off">
                 </form>
-                <div class="absolute bottom-0 peer-has-[:focus]:w-full w-3/4 bg-white rounded-md">
-                    <ul class="flex flex-col justify-items-start absolute w-full rounded-l-md rounded-r-md rounded-b-md border border-blue-700 border-solid border-x-2 border-b-2 divide-y">
+                <div class="absolute bottom-0 peer-has-[:focus]:w-full w-3/4 bg-white rounded-md hidden peer-has-[:focus]:flex">
+                    <ul id='searchOptions' class="flex flex-col justify-items-start absolute w-full rounded-l-md rounded-r-md rounded-b-md border border-blue-700 border-solid border-x-2 border-b-2 divide-y max-h-40 overflow-auto">
                        {% for book in all%}
                         <li class="bg-white text-left px-4 py-2">
-                            {{book}}
+                            <a href="/book/{{book}}">{{book}}</a>
                         </li>
                        {% endfor %}
                     </ul>

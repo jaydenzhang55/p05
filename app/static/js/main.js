@@ -33,6 +33,25 @@ document.addEventListener('DOMContentLoaded', function(){
         }
     });
 
+    const searchOptions = document.getElementById('searchOptions')
+    const options = searchOptions.getElementsByTagName('li');
+    const searchInput = document.getElementById('search')
+    let filterSearch = function(){
+        const searchTerm = searchInput.value.toLowerCase();
+
+        Array.from(options).forEach(option => {
+            const optionName = option.textContent.toLowerCase();
+
+            if (optionName.includes(searchTerm)) {
+                option.style.display = '';
+            } else {
+                option.style.display = 'none';
+            }
+         });
+    }
+
+    searchInput.addEventListener('input', filterSearch);
+
     if (page == "Search"){
         if(!searchFound){
             const result = document.getElementById('searchResult');
