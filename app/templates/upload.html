@@ -62,6 +62,23 @@ Target Ship Date: 2025-06-06
     </nav>
 
     <main class="p-10 max-w-xl mx-auto">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="w-1/2 m-auto my-4 space-y-2">
+                    {% for category, message in messages %}
+                        <div class="px-4 py-3 rounded-md text-white
+                                                            {% if category == 'success' %} bg-green-500
+                                                            {% elif category == 'error' %} bg-red-500
+                                                            {% elif category == 'warning' %} bg-yellow-500 text-black
+                                                            {% else %} bg-blue-500
+                                                            {% endif %}
+                                                            ">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
         <h2 class="text-2xl font-semibold mb-6 text-blue-700">Upload a PDF</h2>
         <form action="/upload" method="POST" enctype="multipart/form-data" class="space-y-6">
             <div>

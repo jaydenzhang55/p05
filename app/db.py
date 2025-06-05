@@ -148,18 +148,23 @@ def validatePassword(hash, password):
     return bcrypt.checkpw(password.encode("utf-8"), hash)
 
 def storePDF(title, file_path, data):
+    maxSize=40 * 1024 * 1024 # 40 mb is max
     with sqlite3.connect(DB_FILE) as db:
         cur = db.cursor()
         cur.execute("SELECT COUNT(*) FROM pdfs WHERE title = ?", (title,))
         if cur.fetchone()[0] > 0:
-            print(f"PDF with title '{title}' already exists.")
-            return
+            raise Exception(f"PDF with title '{title}' already exists.")
+
         if file_path != None:
             with open(file_path, 'rb') as f:
                 blob_data = f.read()
         else:
             blob_data = data
-        cur.execute("INSERT INTO pdfs(title, pdf_data) VALUES (?, ?)", (title, blob_data))
+
+        if len(blob_data) > maxSize:
+            raise Exception("File too large")
+
+        cur.execute("INSERT INTO pdfs(title, pdf_data) VALUES (?, ?)", (title, sqlite3.Binary(blob_data)))
         db.commit()
 
 # def searchForPDF(title):
