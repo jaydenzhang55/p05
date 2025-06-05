@@ -54,10 +54,28 @@ def check_password(username, password):
 def main():
     all = db.getAllPDFs()
     if signed_in():
-        return render_template("index.html", loggedIn=True, username=session['username'], all=all)
+        if request.method == "POST":
+            request = request.form.get('request')
+            try:
+                websiteLinks = websiteLinkCreator(request)
+            except Exception as e:
+                print(e)
+            for link in websiteLinks:
+                try:
+                    downloadLinks = getDownloadPDFLink(link)
+                    for link in downloadLinks:
+                        PDF(link, request)
+                except Exception as e:
+                    print(e)
+        return render_template("index.html", loggedIn="true", username=session['username'])
     else:
-        return render_template("index.html", loggedIn=False, username='', all=all)
-
+        return render_template("index.html", loggedIn="false", username='')
+    
+@app.route('/tos', methods=['GET', 'POST'])
+def tos():
+    if signed_in():
+        return render_template("index.html", loggedIn="true", username=session['username'])
+    return render_template("tos.html", loggedIn="false", username='')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -67,13 +85,13 @@ def login():
         username = request.form.get('username')
         password = request.form.get('pw')
         if not check_user(username):
-            return render_template("login.html", message="No such username exists", loggedIn=True)
+            return render_template("login.html", message="No such username exists", loggedIn="false")
         if not check_password(username, password):
-            return render_template("login.html", message="Incorrect password", loggedIn=False)
+            return render_template("login.html", message="Incorrect password", loggedIn="false")
         session['username'] = username
         session["password"] = request.form.get("pw")
         return redirect('/')
-     return render_template("login.html", loggedIn=False)
+     return render_template("login.html", loggedIn="false")
 
 @app.route('/solution', methods=['GET', 'POST'])
 def solution():
@@ -108,15 +126,16 @@ def register():
             session["password"] = password
             return redirect('/login')
         else:
-            return render_template('register.html', message="Username already exists", loggedIn=False)
-    return render_template("register.html", loggedIn=False)
+            return render_template('register.html', message="Username already exists", loggedIn="false")
+    return render_template("register.html", loggedIn="false")
 
 @app.route('/saved/<username>', methods=['GET', 'POST'])
 def saved(username):
+    save = db.getSaved()
     if signed_in():
-        return render_template("saved.html", loggedIn=True, username=session['username'])
+        return render_template("saved.html", loggedIn="true", username=session['username'], saves=save)
     else:
-        return render_template("saved.html", loggedIn=False, username='')
+        return render_template("saved.html", loggedIn="false", username='')
 
 @app.route('/book', methods=['GET', 'POST'])
 def book():
@@ -126,9 +145,9 @@ def book():
     if pdf_data:
         pdf_b64 = base64.b64encode(pdf_data).decode('utf-8')
     if signed_in():
-            return render_template("book.html", loggedIn=True, username=session['username'], title=title, pdf_b64=pdf_b64)
+            return render_template("book.html", loggedIn="true", username=session['username'], title=title, pdf_b64=pdf_b64)
     else:
-        return render_template("book.html", loggedIn=False, username='', title=title, pdf_b64=pdf_b64)
+        return render_template("book.html", loggedIn="false", username='', title=title, pdf_b64=pdf_b64)
     
 @app.route('/search', methods=['GET', 'POST'])
 def search():
@@ -145,15 +164,15 @@ def search():
             boolean = True
 
         if signed_in():
+            print(session['username'])
             return render_template(
-                "search.html",loggedIn=True,search=search_term, searchFound = boolean, list=lists, boolean=boolean, username=session["username"]
+                "search.html",loggedIn="true",search=search_term, searchFound = boolean, list=lists, boolean=boolean, username=session["username"]
             )
         else:
             # Not signed in
             return render_template(
-                "search.html",loggedIn=False,search=search_term,searchFound=boolean, list=lists, boolean=boolean,username=None
+                "search.html",loggedIn="false",search=search_term,searchFound=boolean, list=lists, boolean=boolean,username=None
             )
-
 
 @app.route('/logout', methods=['GET', 'POST'])
 def logOut():
@@ -183,28 +202,34 @@ def websiteLinkCreator(query):
     queryArray = query.split(' ')
     modification = ""
     for _ in range(len(queryArray)):
-        modification = queryArray[_]
+        if "'" in queryArray[_]:
+            queryArray[_].replace("'", "%27")
+        modification = queryArray[_] + "+"
     URL = "https://annas-archive.org/search?q=" + modification
     page = requests.get(URL)
 
     soup = BeautifulSoup(page.content, "html.parser")
 
-    for link in soup.find_all('a'):
-        print(link.get('href'))
-
-    return soup.find_all('a')
+    try:
+        for link in soup.find_all('a'):
+            print(link.get('href'))
+        return soup.find_all('a')
+    except:
+        raise Exception("no books found")
 
 def getDownloadPDFLink(chosenLink): 
-    URL = "https://annas-archive.org" + chosenLink
+    URL = "https://archive.org" + chosenLink
     page = requests.get(URL)
 
     soup = BeautifulSoup(page.content, "html.parser")
     listOfLinks = []
 
     for link in soup.find_all('a'):
-        if "slow" in link:
+        if "pdf" in link:
             listOfLinks.append(link)
 
+    if len(listOfLinks) == 0:
+        raise Exception("no download links found")
     return listOfLinks
 
 def download_pdf_file(download_url, output_path):
@@ -216,7 +241,7 @@ def PDF(chosenLink, query):
     listOfLinks = getDownloadPDFLink(chosenLink)
     originalPath = "downloaded.pdf"
     compressedPath = "compressed.pdf"
-    download_pdf_file("https://annas-archive.org" + listOfLinks[0], originalPath)
+    download_pdf_file("https://archive.org" + listOfLinks[0], originalPath)
     compress_pdf_pikepdf(originalPath, compressedPath)
     db.storePDF(query, compressedPath, None)
 

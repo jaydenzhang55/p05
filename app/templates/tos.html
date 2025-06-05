@@ -14,22 +14,28 @@ Target Ship Date: 2025-06-06
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
-    <title>Upload PDF</title>
+    <title>Saved</title>
     <script src="../static/js/main.js"></script>
     {% block javascript %}
-        <script>
-            var loggedIn = {{loggedIn}};
-            var user;
-            if (loggedIn){
-                user = {{ username | tojson }};
+    <script>
+        var loggedIn = {{ loggedIn }};
+        var user;
+        if (loggedIn) {
+            user = {{ username | tojson }
+        };
+
             }
-        </script>
+    </script>
     {% endblock %}
 </head>
 
+
 <body class="bg-white text-black font-sans">
     <nav class="flex flex-row justify-between items-center h-20 w-full bg-white border border-b-gray-300 shadow-md">
-       <a href="/"><h1 class=" basis-7/24 peer-has-[:focus]:basis-5/24 order-first ml-10 text-blue-700 text-4xl font-bold">ξ</h1></a>
+        <a href="/">
+            <h1 class=" basis-7/24 peer-has-[:focus]:basis-5/24 order-first ml-10 text-blue-700 text-4xl font-bold">ξ
+            </h1>
+        </a>
         <ul id="navItem"
             class="basis-5/12 peer-has-[:focus]:basis-6/12 flex flex-row justify-evenly justify-center-safe h-full text-center items-center text-xl">
             <li
@@ -45,7 +51,8 @@ Target Ship Date: 2025-06-06
             <li class="basis-1/10 hover:border-b-4 hover:border-b-blue-500 hover:text-blue-700 ml-2">
                 <a href="/tos" class="px-4 py-2">TOS</a>
             </li>
-            <li class="basis-1/10 hover:border-b-4 hover:border-b-blue-500 hover:text-blue-700 ml-2">
+            <li
+                class="flex flex-row basis-1/10 items-center justify-center w-1/4 peer-has-[:focus]:basis-1/4 ease-in-out hover:border-b-4 hover:border-b-blue-500 hover:text-blue-700 ml-2">
                 <a href="/saved/{{username}}" class="px-4 py-2" id="sbutton">Saved</a>
             </li>
         </ul>
@@ -61,31 +68,13 @@ Target Ship Date: 2025-06-06
         </ul>
     </nav>
 
-    <main class="p-10 max-w-xl mx-auto">
-        <h2 class="text-2xl font-semibold mb-6 text-blue-700">Upload a PDF</h2>
-        <form action="/upload" method="POST" enctype="multipart/form-data" class="space-y-6">
-            <div>
-                <label for="title" class="block text-lg font-medium">Title of PDF</label>
-                <input type="text" id="title" name="title" required
-                    class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
+    <div>
+        <p>
+            By making an account, you agree to 404NotFound's Terms of Service. These terms include not uploading anything that would harm or be of incrimination to one's self. Also, explicit context that deviates from textbooks should not be uploaded, with any being promptly removed as well as legal consquences that may ensuit.
+        </p>
+    </div>
 
-            <div>
-                <label for="pdf" class="block text-lg font-medium">PDF</label>
-                <input type="file" id="pdf" name="pdf" accept="application/pdf" required
-                    class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
 
-            <button type="submit"
-                class="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500 transition">
-                Upload
-            </button>
-            <br>
-        {% if message %}
-            {{ message }}
-        {% endif %}
-        </form>
-    </main>
 </body>
 
 </html>

@@ -41,6 +41,9 @@ Target Ship Date: 2025-06-06
                 <a href="/upload" class="px-4 py-2">Upload</a>
             </li>
             <li class="basis-1/10 hover:border-b-4 hover:border-b-blue-500 hover:text-blue-700 ml-2">
+                <a href="/tos" class="px-4 py-2">TOS</a>
+            </li>
+            <li class="basis-1/10 hover:border-b-4 hover:border-b-blue-500 hover:text-blue-700 ml-2">
                 <a href="/saved/{{username}}" class="px-4 py-2" id="sbutton">Saved</a>
             </li>
         </ul>
@@ -56,7 +59,24 @@ Target Ship Date: 2025-06-06
         </ul>
     </nav>
 
-    <div>
+    <div class="ml-10 mt-10 mb-10 max-w-3xl" id="searchResult">
+        <ul>
+            {% if saves %}
+                {% for pdf in saves %}
+                <form method="POST" action="/book"
+                    class="transition ease-in-out duration-500 px-6 py-4 my-4 bg-blue-100 hover:bg-blue-800 hover:text-white rounded-md cursor-pointer">
+                    <input type="hidden" name="title" value="{{ pdf }}">
+                    <button type="submit" class="w-full text-left font-bold">
+                        {{ pdf }}
+                    </button>
+                </form>
+                {% endfor %}
+            {% endif %}
+
+            {% if error %}
+            <div class="text-red-600 mt-4">{{ error }}</div>
+            {% endif %}
+        </ul>
     </div>
 </body>
 
