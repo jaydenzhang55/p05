@@ -58,6 +58,7 @@ def check_password(username, password):
 
 @app.route('/', methods=['GET', 'POST'])
 def main():
+    all = db.getAllPDFs()
     if signed_in():
         if request.method == "POST":
             userRequest = request.form.get('request')
@@ -487,3 +488,4 @@ if __name__ == "__main__":
 #     app.run(host='0.0.0.0')
     app.debug = True
     app.run(host='127.0.0.1')
+

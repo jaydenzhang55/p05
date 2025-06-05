@@ -29,16 +29,50 @@ Target Ship Date: 2025-06-06
 
 
 <body class="bg-white text-blue-800 font-sans">
+    <header class="bg-white border-b shadow-sm">
+        <div class="flex flex-wrap justify-between items-center px-6 py-4 max-w-7xl mx-auto">
+          <a href="/" class="text-blue-600 text-2xl font-bold flex items-center space-x-2">
+            <span>ξ PSI</span>
+          </a>
+          <nav class="flex flex-wrap items-center space-x-6 text-sm font-medium text-gray-700 mt-4 sm:mt-0">
+            <form method="POST" action="/search" class="flex-shrink-0">
+              <input class="border border-gray-300 p-2 rounded-md text-blue-800" type="text" name="search" placeholder="Search">
+            </form>
+            <a href="/upload" class="hover:text-blue-600">Upload</a>
+            <a href="/tos" class="hover:text-blue-600">TOS</a>
+            <a href="saved/{{username}}" id="sbutton" class="hover:text-blue-600">Saved</a>
+            {% if loggedIn == "true" %}
+                <span class="text-blue-700 font-semibold">Welcome, {{ username }}</span>
+                <form action="/logout" method="POST" class="inline">
+                    <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded-3xl hover:bg-red-500 transition hover:scale-105">Log Out</button>
+                </form>
+            {% else %}
+                <a href="/login" id="loginButton" class="bg-blue-600 text-white px-4 py-2 rounded-3xl hover:bg-blue-500 transition hover:scale-105">Log In</a>
+            {% endif %}
+          </nav>
+        </div>
+    </header>
+
+    <!-- Old Navbar
     <nav class="flex flex-row justify-between items-center h-20 w-full bg-white border border-b-gray-300 shadow-md">
         <a href="/"><h1 class=" basis-7/24 peer-has-[:focus]:basis-5/24 order-first ml-10 text-blue-700 text-4xl font-bold">ξ</h1></a>
         <ul id="navItem" class="basis-5/12 peer-has-[:focus]:basis-6/12 flex flex-row justify-evenly justify-center-safe h-full text-center items-center text-xl">
-            <li class="flex flex-row basis-1/2 items-center justify-center peer w-full has-[:focus]:basis-3/4 ease-in-out">
+            <li class="flex flex-row basis-1/2 items-center justify-center peer w-full has-[:focus]:basis-3/4 ease-in-out relative">
                 <form method="POST" action="/search" id='searchBar' class="peer has-[:focus]:w-full">
                     <input class="border border-solid w-full p-2 text-blue-800 rounded-md" type="text" id="search"
-                name="search" placeholder="Search">
+                name="search" placeholder="Search" autocomplete="off">
                 </form>
+                <div class="absolute bottom-0 peer-has-[:focus]:w-full w-3/4 bg-white rounded-md hidden peer-has-[:focus]:flex">
+                    <ul id='searchOptions' class="flex flex-col justify-items-start absolute w-full rounded-l-md rounded-r-md rounded-b-md border border-blue-700 border-solid border-x-2 border-b-2 divide-y max-h-40 overflow-auto">
+                       {% for book in all%}
+                        <li class="bg-white text-left px-4 py-2">
+                            <a href="/book/{{book}}">{{book}}</a>
+                        </li>
+                       {% endfor %}
+                    </ul>
+                </div>
             </li>
-            <li class="basis-1/10 hover:border-b-4 hover:border-b-blue-500 hover:text-blue-700 ml-2">
+            <li class="flex flex-row basis-1/20 items-center justify-center w-1/4 peer-has-[:focus]:basis-1/16 ease-in-out hover:border-b-4 hover:border-b-blue-500 hover:text-blue-700 ml-2">
                 <a href="/upload" class="px-4 py-2">Upload</a>
             </li>
             <li class="basis-1/10 hover:border-b-4 hover:border-b-blue-500 hover:text-blue-700 ml-2">
@@ -57,6 +91,7 @@ Target Ship Date: 2025-06-06
             </li>
         </ul>
     </nav>
+    -->
 
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
@@ -77,13 +112,42 @@ Target Ship Date: 2025-06-06
     {% endwith %}
 
     <div class="grid place-content-center static space-y-8 py-10 w-1/2 m-auto my-20 rounded-md border border-blue-500 border-2 bg-white px-5 ">
-        <h1 class="text-3xl text-center">Welcome to ξ !</h1>
-        <p>The one stop key to success for all your learning. We have crawled and scraped through the web for you to compile an all in one, one step textbook archive where you will be able to find all your textbooks in minimal time and maximum efficiency all in one search! Through our application, you will be able to find your textbooks, save them to your account, and download them to your local device. All for free !!!</p>
-        <p class="text-right text-xl text-bold"> - 404NotFound</p>
-
-        </br>
-        <p>Start your journey by searching up a material!</p>
+        <section class="text-center py-20 px-4">
+          <h1 class="text-4xl sm:text-5xl font-bold mb-4">
+            Welcome to ξ ! <br />
+            <span class="text-blue-600">The one stop key to success for all your learning</span>
+          </h1>
+          <p class="text-gray-600 text-lg mb-6">
+            We have crawled and scraped through the web for you to compile an all in one, one step textbook archive where you will be able to find all your textbooks in minimal time and maximum efficiency all in one search! Through our application, you will be able to find your textbooks, 
+            save them to your account, and download them to your local device. All for free !!!
+          </p>
+          <p class="text-right text-xl text-bold"> - 404NotFound</p>
+          </br>
+          
+          <p>Start your journey by searching up a material!</p>
+        </section>
     </div>
+
+    <section class="bg-gray-50 text-gray-800">
+    <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+      <div>
+        <div class="text-blue-500 text-4xl mb-2"> 🤓 </div>
+        <h3 class="text-lg font-semibold mb-2">Solutions</h3>
+        <p class="text-gray-600">Get Solutions or Find Practice Questions!</p>
+      </div>
+      <div>
+        <div class="text-blue-500 text-4xl mb-2">🔎</div>
+        <h3 class="text-lg font-semibold mb-2">Search</h3>
+        <p class="text-gray-600">Find Any Textbook!</p>
+      </div>
+      <div>
+        <div class="text-blue-500 text-4xl mb-2">📁</div>
+        <h3 class="text-lg font-semibold mb-2">Upload</h3>
+        <p class="text-gray-600">Upload A Textbook If We Don't Have It!</p>
+      </div>
+    </div>
+  </section>
+
 </body>
 
 </html>

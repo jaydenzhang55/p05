@@ -69,8 +69,9 @@ Target Ship Date: 2025-06-06
             </li>
         </ul>
     </nav>
-    
-    <div id="pdf-container" class="flex flex-col items-center justify-center mt-6"></div>
+    <div class="flex flex-row w-full px-5 py-10">
+        <div id="pdf-container" class="items-center justify-center w-1/2 overflow-auto max-h-screen border border-2 border-black p-5 rounded-lg"></div>
+    </div>
 
     <script>
     const pdfB64 = `{{ pdf_b64 | safe }}`;
@@ -95,13 +96,14 @@ Target Ship Date: 2025-06-06
 
             for (let pageNum = 1; pageNum <= numPages; pageNum++) {
                 pdfDoc.getPage(pageNum).then(function (page) {
-                    const scale = 1.5;
+                    const scale = 1.45;
                     const viewport = page.getViewport({ scale: scale });
 
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
                     canvas.width = viewport.width;
                     canvas.height = viewport.height;
+                    canvas.setAttribute('class', 'b-b-2 border')
 
                     container.appendChild(canvas);
 

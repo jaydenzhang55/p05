@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', function(){
     else{
         const profile = document.getElementById('sbutton');
         const login = document.createElement('a');
+        login.setAttribute('class', 'px-4 py-2')
         login.href = '/login';
         login.textContent = "Saved";  
 
@@ -31,6 +32,25 @@ document.addEventListener('DOMContentLoaded', function(){
             event.preventDefault();
         }
     });
+
+    const searchOptions = document.getElementById('searchOptions')
+    const options = searchOptions.getElementsByTagName('li');
+    const searchInput = document.getElementById('search')
+    let filterSearch = function(){
+        const searchTerm = searchInput.value.toLowerCase();
+
+        Array.from(options).forEach(option => {
+            const optionName = option.textContent.toLowerCase();
+
+            if (optionName.includes(searchTerm)) {
+                option.style.display = '';
+            } else {
+                option.style.display = 'none';
+            }
+         });
+    }
+
+    searchInput.addEventListener('input', filterSearch);
 
     if (page == "Search"){
         if(!searchFound){
