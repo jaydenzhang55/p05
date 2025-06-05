@@ -26,6 +26,24 @@ Target Ship Date: 2025-06-06
 
 
 <body class="bg-white text-blue-800 font-sans">
+    <header class="bg-white border-b shadow-sm">
+        <div class="flex flex-wrap justify-between items-center px-6 py-4 max-w-7xl mx-auto">
+          <a href="/" class="text-blue-600 text-2xl font-bold flex items-center space-x-2">
+            <span>ξ PSI</span>
+          </a>
+          <nav class="flex flex-wrap items-center space-x-6 text-sm font-medium text-gray-700 mt-4 sm:mt-0">
+            <form method="POST" action="/search" class="flex-shrink-0">
+              <input class="border border-gray-300 p-2 rounded-md text-blue-800" type="text" name="search" placeholder="Search">
+            </form>
+            <a href="/upload" class="hover:text-blue-600">Upload</a>
+            <a href="/tos" class="hover:text-blue-600">TOS</a>
+            <a href="saved/{{username}}" id="sbutton" class="hover:text-blue-600">Saved</a>
+            <a href="/login" id="loginButton" class="bg-blue-600 text-white px-4 py-2 rounded-3xl hover:bg-blue-500 transition hover:scale-105">Log In</a>
+          </nav>
+        </div>
+    </header>
+
+    <!-- Old Navbar
     <nav class="flex flex-row justify-between items-center h-20 w-full bg-white border border-b-gray-300 shadow-md">
         <a href="/"><h1 class=" basis-7/24 peer-has-[:focus]:basis-5/24 order-first ml-10 text-blue-700 text-4xl font-bold">ξ</h1></a>
         <ul id="navItem" class="basis-5/12 peer-has-[:focus]:basis-6/12 flex flex-row justify-evenly justify-center-safe h-full text-center items-center text-xl">
@@ -54,7 +72,7 @@ Target Ship Date: 2025-06-06
             </li>
         </ul>
     </nav>
-
+    -->
     <div class="grid place-content-center static space-y-8 py-10 w-1/2 m-auto my-20 rounded-md border border-blue-500 border-2 bg-white px-5 ">
         <h1 class="text-3xl text-center">Welcome to ξ !</h1>
         <p>The one stop key to success for all your learning. We have crawled and scraped through the web for you to compile an all in one, one step textbook archive where you will be able to find all your textbooks in minimal time and maximum efficiency all in one search! Through our application, you will be able to find your textbooks, save them to your account, and download them to your local device. All for free !!!</p>
