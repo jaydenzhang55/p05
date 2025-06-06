@@ -142,20 +142,12 @@ def register():
             return render_template('register.html', message="Username already exists", loggedIn=False, all=all)
     return render_template("register.html", loggedIn=False, all=all)
 
-@app.route('/saved', methods=['GET', 'POST'])
-def save():
-    if signed_in():
-        return redirect(url_for('saved', username=session['username'])) 
-    else: 
-        flash("You must be signed in to view saved items.")
-        return redirect(url_for('login'))
-
 @app.route('/saved/<username>', methods=['GET', 'POST'])
 def saved(username):
     if signed_in():
         all = db.getAllPDFs()
         save = db.getSaved(username)
-        return render_template("saved.html", loggedIn="true", username=session['username'], saves=save, all=all)
+        return render_template("saved.html", loggedIn=True, username=session['username'], saves=save, all=all)
     else:
         flash("You must be signed in to view saved items.")
         return redirect(url_for('login'))
@@ -192,7 +184,6 @@ def book():
         api_key = getAIKey()
         prompt = request.form.get("prompt", "")
         uploaded_file = request.files.get("file")
-        title = request.form.get("title")
         if api_key and prompt:
             explanation = sol.getGeminiExplaination(api_key, prompt)
             video = sol.getGeminiVideo(api_key, prompt)
