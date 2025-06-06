@@ -34,7 +34,6 @@ def signed_in():
 
 def check_user(username):
     user = db.getUser(username)
-    print(user)
     if user is None:
         return False
     return user[0] == username
@@ -43,7 +42,6 @@ def check_password(username, password):
     user = db.getHash(username)
     if user is None:
         return False
-    print(user)
     return user[0] == password
 
 @app.route('/', methods=['GET', 'POST'])
@@ -81,12 +79,7 @@ def main():
         if request.method == "POST":
             flash("You must be signed in to request.", 'error')
         return render_template("index.html", loggedIn=False, username=None)
-    
-@app.route('/tos', methods=['GET', 'POST'])
-def tos():
-    if signed_in():
-        return render_template("index.html", loggedIn=True, username=session['username'])
-    return render_template("tos.html", loggedIn=False, username='')
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -108,25 +101,6 @@ def login():
         return redirect('/')
      return render_template("login.html", loggedIn=False, all=all)
 
-@app.route('/solution', methods=['GET', 'POST'])
-def solution():
-    if not signed_in():
-        flash("You need to be logged in to use solutions!")
-        return render_template("login.html", loggedIn=False)
-
-    video = None 
-    explanation = None
-    prompt = ""
-
-    if request.method == "POST":
-        api_key = getAIKey()
-        prompt = request.form.get("prompt", "")
-        if api_key and prompt:
-            explanation = sol.getGeminiExplaination(api_key, prompt)
-            video = sol.getGeminiVideo(api_key, prompt)
-
-    return render_template("solutions.html",username = session['username'], explanation=explanation, prompt=prompt, video=video, loggedIn=True)
-
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -146,11 +120,21 @@ def register():
             return render_template('register.html', message="Username already exists", loggedIn=False, all=all)
     return render_template("register.html", loggedIn=False, all=all)
 
+@app.route('/saved', methods=['GET', 'POST'])
+def save():
+    if signed_in():
+        return redirect(url_for('saved', username=session['username'])) 
+    else: 
+        flash("You must be signed in to view saved items.")
+        return redirect(url_for('login'))
+    
 @app.route('/saved/<username>', methods=['GET', 'POST'])
 def saved(username):
     if signed_in():
         all = db.getAllPDFs()
         save = db.getSaved(username)
+        print(username)
+        print(save)
         return render_template("saved.html", loggedIn=True, username=session['username'], saves=save, all=all)
     else:
         flash("You must be signed in to view saved items.")
