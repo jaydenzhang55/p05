@@ -9,7 +9,6 @@ Target Ship Date: 2025-06-06
 
 import base64
 import os
-import time
 import db as db 
 from flask import Flask
 from flask import flash
@@ -18,9 +17,6 @@ from flask import request
 from flask import session
 from flask import redirect
 from flask import url_for
-from flask import send_file
-from flask import Response
-from io import BytesIO
 import Solutions as sol
 import pikepdf
 import requests
@@ -29,15 +25,9 @@ import json
 import tempfile
 import shutil
 
-
 app = Flask(__name__)
 secret = os.urandom(32)
 app.secret_key = secret
-
-##image configuration
-upload_folder = 'static/images'
-allowed_extensions = {'png', 'jpg', 'jpeg', 'gif'}
-app.config['upload_folder'] = upload_folder
 
 def signed_in():
     return 'username' in session.keys() and session['username'] is not None
@@ -164,7 +154,7 @@ def save():
 def saved(username):
     if signed_in():
         all = db.getAllPDFs()
-        save = db.getSaved()
+        save = db.getSaved(username)
         return render_template("saved.html", loggedIn="true", username=session['username'], saves=save, all=all)
     else:
         flash("You must be signed in to view saved items.")
@@ -177,19 +167,22 @@ def book():
     pdf_data = None
     pdf_b64 = ""
     save = request.form.get('saveButton')
-    if save is not None:
-        if save =="true":
-            save = True
-        else:
-            saved = False
-    else:
-        saved = False
     if title:
         result = db.searchForPDFData(title)
         if result:
             pdf_data = result[0]
             pdf_b64 = base64.b64encode(pdf_data).decode('utf-8')
-            
+    if save is not None:
+        if save =="true":
+            saved = True
+            username = session["username"]
+            db.addSave(username, title)
+        else:
+            saved = False
+            username = session["username"]
+            db.removeSave(username, title)
+    else:
+        saved = False
     video = None
     explanation = None
     prompt = ""
