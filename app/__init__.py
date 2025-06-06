@@ -234,7 +234,9 @@ def upload():
                 flash(str(e), "error")
             return render_template("upload.html", loggedIn=True, username=session['username'], all=all)
         return render_template("upload.html", loggedIn=True, username=session['username'], all=all)
-    return redirect('/login')
+    else: 
+        flash("You must be signed in to upload items.")
+        return redirect(url_for('login'))
 
 #---------------------------Failed--------------------------------
 
