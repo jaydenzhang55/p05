@@ -79,10 +79,6 @@ def main():
         if request.method == "POST":
             flash("You must be signed in to request.", 'error')
         return render_template("index.html", loggedIn=False, username=None)
-<<<<<<< HEAD
-=======
-
->>>>>>> 6f8d2b9983b12795284a79977014ac9ee0c03664
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
