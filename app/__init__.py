@@ -133,8 +133,6 @@ def saved(username):
     if signed_in():
         all = db.getAllPDFs()
         save = db.getSaved(username)
-        print(username)
-        print(save)
         return render_template("saved.html", loggedIn=True, username=session['username'], saves=save, all=all)
     else:
         flash("You must be signed in to view saved items.")
