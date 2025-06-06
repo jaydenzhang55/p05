@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS users (
     password TEXT NOT NULL
 );
 ''')
-cur.execute("CREATE TABLE IF NOT EXISTS pdfs(id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, pdf_data BLOB)")
+cur.execute("CREATE TABLE IF NOT EXISTS pdfs (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, pdf_data BLOB UNIQUE)")
 cur.execute('''
         CREATE TABLE IF NOT EXISTS questions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -24,7 +24,15 @@ cur.execute('''
             Textbook_id INTEGER,
             FOREIGN KEY(Textbook_id) REFERENCES pdfs(id)
         )
-
+    ''')
+cur.execute('''
+        CREATE TABLE IF NOT EXISTS saves (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user TEXT,
+            pdfdata BLOB,
+            FOREIGN KEY(user) REFERENCES users(username),
+            FOREIGN KEY(pdfdata) REFERENCES pdfs(pdf_data)
+        )
     ''')
 db.commit()
 db.close()
@@ -39,7 +47,7 @@ def pdfTable():
     try:
         db = sqlite3.connect(DB_FILE)
         cur = db.cursor()
-        cur.execute("CREATE TABLE IF NOT EXISTS pdfs(id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, pdf_data BLOB)")
+        cur.execute("CREATE TABLE IF NOT EXISTS pdfs(id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, pdf_data BLOB UNIQUE)")
         db.commit()
     except sqlite3.Error as e:
         print(f"Database error: {e}")
@@ -52,7 +60,7 @@ def saveTable():
     try:
         db = sqlite3.connect(DB_FILE)
         cur = db.cursor()
-        cur.execute("CREATE TABLE IF NOT EXISTS saves(id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, pdf_data BLOB)")
+        cur.execute("CREATE TABLE IF NOT EXISTS saves(id INTEGER PRIMARY KEY AUTOINCREMENT, user TEXT, pdfdata BLOB, FOREIGN KEY(user) REFERENCES users(username), FOREIGN KEY(pdfdata) REFERENCES pdfs(pdf_data))")
         db.commit()
     except sqlite3.Error as e:
         print(f"Database error: {e}")
@@ -73,11 +81,11 @@ def addUser(username, password):
         db.commit()
         db.close()
 
-def addSaveIDs(pdfid):
+def addSave(user, pdf):
     try:
         db = sqlite3.connect(DB_FILE)
         cur = db.cursor()
-        cur.execute("INSERT INTO users (saveIDs) VALUES (?)", (pdfid))
+        cur.execute("INSERT INTO saves (user, pdfdata) VALUES (?, ?)", (user, pdf))
     except sqlite3.Error as e:
         print(f"Database error: {e}")
     finally:
@@ -89,14 +97,26 @@ def removeUser(id):
     try:
         db = sqlite3.connect(DB_FILE)
         cur = db.cursor()
-        cur.execute(f"DELETE FROM users WHERE id='{id}'")
+        cur.execute("DELETE FROM users WHERE id = ?", (id,))
     except sqlite3.Error as e:
         print(f"Database error: {e}")
     finally:
         cur.close()
         db.commit()
         db.close()
-    
+
+def removeSave(user, pdf):
+    try:
+        db = sqlite3.connect(DB_FILE)
+        cur = db.cursor()
+        cur.execute("DELETE FROM saves WHERE user = ? AND pdfdata = ?", (user, pdf))
+    except sqlite3.Error as e:
+        print(f"Database error: {e}")
+    finally:
+        cur.close()
+        db.commit()
+        db.close()
+
 def validateUser(username, password):
     dbPassword = getHash(username)
     if dbPassword:
@@ -208,10 +228,10 @@ def getAllPDFs():
     db.close()
     return [row[0] for row in results]
 
-def getSaved():
+def getSaved(user):
     db = sqlite3.connect(DB_FILE)
     cur = db.cursor()
-    cur.execute("SELECT title FROM saves")  
+    cur.execute("SELECT pdfdata FROM saves WHERE user = ?", (user,))  
     results = cur.fetchall()
     db.close()
     return [row[0] for row in results]
