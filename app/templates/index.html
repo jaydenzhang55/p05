@@ -17,11 +17,8 @@ Target Ship Date: 2025-06-06
     <script src="../static/js/main.js"></script>
     {% block javascript %}
         <script>
-            var loggedIn = {{ loggedIn }};
-            var user;
-            if (loggedIn) {
-                user = {{ username | tojson }};
-            }
+            var loggedIn = {{ loggedIn | tojson}}; 
+            var user = loggedIn ? {{ username | tojson }} : null;
         </script>
     {% endblock %} 
     <title>Home</title>
@@ -35,13 +32,21 @@ Target Ship Date: 2025-06-06
             <span>ξ PSI</span>
           </a>
           <nav class="flex flex-wrap items-center space-x-6 text-sm font-medium text-gray-700 mt-4 sm:mt-0">
-            <form method="POST" action="/search" class="flex-shrink-0">
-              <input class="border border-gray-300 p-2 rounded-md text-blue-800" type="text" name="search" placeholder="Search">
+            <form method="POST" action="/search" id="searchBar" class="flex-col flex-1 peer">
+              <input class="border border-gray-300 p-2 rounded-md text-blue-800 flex-1" type="text" name="search" id='search' placeholder="Search" autocomplete="off">
+              <div class="w-2 bg-white rounded-md">
+                    <ul id='searchOptions' style="display: none;" class="flex flex-col justify-items-start absolute rounded-l-md rounded-r-md rounded-b-md border border-blue-700 border-solid border-x-2 border-b-2 divide-y max-h-30 overflow-auto">
+                       {% for book in all%}
+                            <li class="bg-white text-left px-4 py-2">
+                                {{book}}
+                            </li>
+                       {% endfor %}
+                    </ul>
+                </div>
             </form>
             <a href="/upload" class="hover:text-blue-600">Upload</a>
-            <a href="/tos" class="hover:text-blue-600">TOS</a>
             <a href="saved/{{username}}" id="sbutton" class="hover:text-blue-600">Saved</a>
-            {% if loggedIn == "true" %}
+            {% if loggedIn == True %}
                 <span class="text-blue-700 font-semibold">Welcome, {{ username }}</span>
                 <form action="/logout" method="POST" class="inline">
                     <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded-3xl hover:bg-red-500 transition hover:scale-105">Log Out</button>
@@ -128,25 +133,31 @@ Target Ship Date: 2025-06-06
         </section>
     </div>
 
-    <section class="bg-gray-50 text-gray-800">
-    <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-      <div>
-        <div class="text-blue-500 text-4xl mb-2"> 🤓 </div>
-        <h3 class="text-lg font-semibold mb-2">Solutions</h3>
-        <p class="text-gray-600">Get Solutions or Find Practice Questions!</p>
-      </div>
-      <div>
-        <div class="text-blue-500 text-4xl mb-2">🔎</div>
-        <h3 class="text-lg font-semibold mb-2">Search</h3>
-        <p class="text-gray-600">Find Any Textbook!</p>
-      </div>
-      <div>
-        <div class="text-blue-500 text-4xl mb-2">📁</div>
-        <h3 class="text-lg font-semibold mb-2">Upload</h3>
-        <p class="text-gray-600">Upload A Textbook If We Don't Have It!</p>
-      </div>
-    </div>
-  </section>
+    <section class="bg-gray-50 text-gray-800 py-20">
+        <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+        <div>
+            <div class="text-blue-500 text-4xl mb-2"> 🤓 </div>
+            <h3 class="text-lg font-semibold mb-2">Solutions</h3>
+            <p class="text-gray-600">Get Solutions or Find Practice Questions!</p>
+        </div>
+        <div>
+            <div class="text-blue-500 text-4xl mb-2">🔎</div>
+            <h3 class="text-lg font-semibold mb-2">Search</h3>
+            <p class="text-gray-600">Find Any Textbook!</p>
+        </div>
+        <div>
+            <div class="text-blue-500 text-4xl mb-2">📁</div>
+            <h3 class="text-lg font-semibold mb-2">Upload</h3>
+            <p class="text-gray-600">Upload A Textbook If We Don't Have It!</p>
+        </div>
+        </div>
+    </section>
+
+    <footer class="bg-blue-800 w-full mt-auto">
+        <div class="w-full p-4 text-center">
+        <span class="text-sm text-white">If you choose to make an account, you are agreeing to 404NotFound's Terms of Service. These terms include not uploading anything that would harm or be of incrimination to one's self. Also, explicit context that deviates from textbooks should not be uploaded, with any being promptly removed as well as legal consquences that may ensuit. 404NotFound are not responsible for incriminating, harmful, or untruthful content that may be uploaded please view content at your own discretion</span>
+        </div>
+    </footer>
 
 </body>
 

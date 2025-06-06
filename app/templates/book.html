@@ -37,7 +37,38 @@ Target Ship Date: 2025-06-06
 
 
 <body class="bg-white text-black font-sans">
-    <nav class="flex flex-row justify-between items-center h-20 w-full bg-white border border-b-gray-300 shadow-md">
+    <header class="bg-white border-b shadow-sm">
+        <div class="flex flex-wrap justify-between items-center px-6 py-4 max-w-7xl mx-auto">
+          <a href="/" class="text-blue-600 text-2xl font-bold flex items-center space-x-2">
+            <span>ξ PSI</span>
+          </a>
+          <nav class="flex flex-wrap items-center space-x-6 text-sm font-medium text-gray-700 mt-4 sm:mt-0">
+            <form method="POST" action="/search" id="searchBar" class="flex-col flex-1 peer">
+              <input class="border border-gray-300 p-2 rounded-md text-blue-800 flex-1" type="text" name="search" id='search' placeholder="Search" autocomplete="off">
+              <div class="w-2 bg-white rounded-md">
+                    <ul id='searchOptions' style="display: none;" class="flex flex-col justify-items-start absolute rounded-l-md rounded-r-md rounded-b-md border border-blue-700 border-solid border-x-2 border-b-2 divide-y max-h-30 overflow-auto">
+                       {% for book in all%}
+                            <li class="bg-white text-left px-4 py-2">
+                                <button>{{book}}</button>
+                            </li>
+                       {% endfor %}
+                    </ul>
+                </div>
+            </form>
+            <a href="/upload" class="hover:text-blue-600">Upload</a>
+            <a href="saved/{{username}}" id="sbutton" class="hover:text-blue-600">Saved</a>
+            {% if loggedIn == True %}
+                <span class="text-blue-700 font-semibold">Welcome, {{ username }}</span>
+                <form action="/logout" method="POST" class="inline">
+                    <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded-3xl hover:bg-red-500 transition hover:scale-105">Log Out</button>
+                </form>
+            {% else %}
+                <a href="/login" id="loginButton" class="bg-blue-600 text-white px-4 py-2 rounded-3xl hover:bg-blue-500 transition hover:scale-105">Log In</a>
+            {% endif %}
+          </nav>
+        </div>
+    </header>
+    <!-- <nav class="flex flex-row justify-between items-center h-20 w-full bg-white border border-b-gray-300 shadow-md">
         <a href="/"><h1 class=" basis-7/24 peer-has-[:focus]:basis-5/24 order-first ml-10 text-blue-700 text-4xl font-bold">ξ</h1></a>
         <ul id="navItem"
             class="basis-5/12 peer-has-[:focus]:basis-6/12 flex flex-row justify-evenly justify-center-safe h-full text-center items-center text-xl">
@@ -68,9 +99,28 @@ Target Ship Date: 2025-06-06
                 <a id='lmessage' class="px-4 py-2"></a>
             </li>
         </ul>
-    </nav>
-    <div class="flex flex-row w-full px-5 py-10">
-        <div id="pdf-container" class="items-center justify-center w-1/2 overflow-auto max-h-screen border border-2 border-black p-5 rounded-lg"></div>
+    </nav> -->
+    <div class="w-full flex flex-row">
+        <h1 class=" w-1/2 text-center py-5 text-3xl underline bold text-blue-700">{{title}}</h1>
+        <form class="w-1/2 flex items-center justify-center" method="POST">
+            <input type="hidden" name="title" value="true"></input>
+            <button type="submit" name="saveButton" value={{title}} class="bg-blue-600 text-white px-4 py-2 rounded-3xl hover:bg-blue-500 transition">Save</button>
+        </form>
+    </div>
+    <div class="flex flex-row w-full px-5 pb-10 pt-5">
+        <div id="pdf-container" class="grid place-items-center w-1/2 overflow-auto max-h-screen border border-2 border-black p-5 rounded-lg"></div>
+        <div class="flex flex-col px-5 gap-5">
+            <div class="h-3/4 border border-2 rounded-md">
+            </div>
+            <div class="h-11/24 border border-2 rounded-md border-blue-700 p-5 ">
+                <form method="POST">
+                    <label for="prompt">Paste Your Question Here!</label><br>
+                    <textarea name="prompt" rows="5" cols="60" class="border border-2 rounded-md">{{ prompt }}</textarea><br>
+                    <input type="hidden" name="title" value={{title}}></input>
+                    <input type="submit" value="Generate Solution">
+                </form>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -96,14 +146,14 @@ Target Ship Date: 2025-06-06
 
             for (let pageNum = 1; pageNum <= numPages; pageNum++) {
                 pdfDoc.getPage(pageNum).then(function (page) {
-                    const scale = 1.45;
+                    const scale = 1;
                     const viewport = page.getViewport({ scale: scale });
 
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
                     canvas.width = viewport.width;
                     canvas.height = viewport.height;
-                    canvas.setAttribute('class', 'b-b-2 border')
+                    canvas.setAttribute('class', 'b-b-2 border items-center text-center')
 
                     container.appendChild(canvas);
 
@@ -120,6 +170,12 @@ Target Ship Date: 2025-06-06
         });
     }
     </script>
+
+    <footer class="bg-blue-800 w-full">
+        <div class="w-full p-4 text-center">
+        <span class="text-sm text-white">If you choose to make an account, you are agreeing to 404NotFound's Terms of Service. These terms include not uploading anything that would harm or be of incrimination to one's self. Also, explicit context that deviates from textbooks should not be uploaded, with any being promptly removed as well as legal consquences that may ensuit. 404NotFound are not responsible for incriminating, harmful, or untruthful content that may be uploaded please view content at your own discretion</span>
+        </div>
+    </footer>
 </body>
 
 </html>
