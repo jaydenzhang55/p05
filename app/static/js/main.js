@@ -13,16 +13,6 @@ document.addEventListener('DOMContentLoaded', function(){
         // const welcome =  "Welcome " + user + "!";
         // lmessage.textContent = welcome;
     }
-    else{
-        const profile = document.getElementById('sbutton');
-        const login = document.createElement('a');
-        login.setAttribute('class', 'px-4 py-2')
-        login.href = '/login';
-        login.textContent = "Saved";  
-
-        profile.replaceWith(login)  
-
-    }
 
     page = document.title;
 

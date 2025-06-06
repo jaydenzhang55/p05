@@ -87,13 +87,19 @@ Target Ship Date: 2025-06-06
 
     <div class="grid place-content-center static space-y-8 py-10 max-w-xl m-auto my-20 rounded-3xl border bg-white">
 
+        <!-- Display flash messages, if any (e.g., username already exists) -->
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul class="flashes">
+                    {% for message in messages %}
+                    <li class="bg-red-300 min-w-full p-2 text-red-700 text-center"> {{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
         <!-- Page heading -->
         <h1 class="text-5xl min-w-64">Login</h1>
-
-        <!-- Display flash messages, if any (e.g., username already exists) -->
-        {% if message %}
-        <p class="bg-red-300 min-w-full p-2 text-red-700 text-center"> {{ message }}</p>
-        {% endif %}
 
         <!-- Login form for user credentials -->
         <form method="POST">
