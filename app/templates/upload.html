@@ -76,13 +76,14 @@ Target Ship Date: 2025-06-06
                 </div>
             </form>
             <a href="/upload" class="hover:text-blue-600">Upload</a>
-            <a href="/saved/{{username}}" id="sbutton" class="hover:text-blue-600">Saved</a>
-            {% if loggedIn == True %}
+            {% if loggedIn == "true" %}
+                <a href="/saved/{{username}}" id="sbutton" class="hover:text-blue-600">Saved</a>
                 <span class="text-blue-700 font-semibold">Welcome, {{ username }}</span>
                 <form action="/logout" method="POST" class="inline">
                     <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded-3xl hover:bg-red-500 transition hover:scale-105">Log Out</button>
                 </form>
             {% else %}
+                <a href="/saved" id="sbutton" class="hover:text-blue-600">Saved</a>
                 <a href="/login" id="loginButton" class="bg-blue-600 text-white px-4 py-2 rounded-3xl hover:bg-blue-500 transition hover:scale-105">Log In</a>
             {% endif %}
           </nav>

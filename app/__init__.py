@@ -194,8 +194,6 @@ def book():
     explanation = None
     prompt = ""
 
-    if not signed_in():
-        return render_template("book.html", loggedIn=False, username='', title=title, pdf_b64=pdf_b64, all=all, explanation=explanation, prompt=prompt, video=video )
 
     if request.method == "POST":
         api_key = getAIKey()
@@ -208,7 +206,10 @@ def book():
         elif api_key and uploaded_file:
             explanation = sol.getGeminiMedia(api_key, uploaded_file)
 
-    return render_template( "book.html", username=session.get('username'), loggedIn=True, title=title, pdf_b64=pdf_b64, all=all, explanation=explanation, prompt=prompt, video=video )
+    if not signed_in():
+        return render_template("book.html", loggedIn=False, username='', title=title, pdf_b64=pdf_b64, all=all, explanation=explanation, prompt=prompt, video=video )
+    else:
+        return render_template( "book.html", username=session.get('username'), loggedIn=True, title=title, pdf_b64=pdf_b64, all=all, explanation=explanation, prompt=prompt, video=video )
     
 @app.route('/search', methods=['GET', 'POST'])
 def search():
