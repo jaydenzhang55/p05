@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', function(){
     searchInput.addEventListener('input', filterSearch);
 
     if (page == "Search"){
-        if(!searchFound){
+        if(!searchFound && !showAll){
             const result = document.getElementById('searchResult');
             const message = document.createElement('div');
             message.setAttribute('class', 'flex flex-col text-blue-700 w-full h-full gap-y-10 px-10 py-10 text-center items-center')

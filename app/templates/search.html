@@ -13,6 +13,7 @@
         var user = loggedIn ? {{ username | tojson }} : null;
         var search = {{ search | tojson }};
         var searchFound = {{searchFound |tojson }};
+        var showAll = {{showAll | tojson}}
     </script>
     {% endblock %}
     <title>Search</title>
@@ -94,11 +95,12 @@
                 <form method="POST" action="/search" class="inline">
                     <input type="hidden" name="search" value="{{ search }}">
                     <input type="hidden" name="sort" value="{{ sort }}">
+                    <input type="hidden" name="showAll" value="true">
                     <label for="sortSelect" class="text-sm font-medium text-gray-700 mr-2">Sort by:</label>
                     <select name="sort" id="sortSelect"
                         class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                         onchange="this.form.submit()">
-                        <option value="default" {% if sort=='default' %}selected{% endif %}>Default</option>
+                        <option value="default"{% if sort=='default' %}selected{% endif %}>Default</option>
                         <option value="alphabetical" {% if sort=='alphabetical' %}selected{% endif %}>A-Z</option>
                         <option value="reverse-alphabetical" {% if sort=='reverse-alphabetical' %}selected{% endif %}>Z-A</option>
                         <option value="length-short" {% if sort=='length-short' %}selected{% endif %}>Shortest Title</option>
