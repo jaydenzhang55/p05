@@ -176,11 +176,11 @@ def book():
         if save =="true":
             saved = True
             username = session["username"]
-            db.addSave(username, pdf_data)
+            db.addSave(username, title)
         else:
             saved = False
             username = session["username"]
-            db.removeSave(username, pdf_data)
+            db.removeSave(username, title)
     else:
         saved = False
     video = None
