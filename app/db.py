@@ -17,6 +17,15 @@ CREATE TABLE IF NOT EXISTS users (
 );
 ''')
 cur.execute("CREATE TABLE IF NOT EXISTS pdfs(id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, pdf_data BLOB)")
+cur.execute('''
+        CREATE TABLE IF NOT EXISTS questions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            content Blob,
+            Textbook_id INTEGER,
+            FOREIGN KEY(Textbook_id) REFERENCES pdfs(id)
+        )
+
+    ''')
 db.commit()
 db.close()
 
@@ -243,4 +252,18 @@ def searchForPDFData(keyword):
     db.close()
     return [row[0] for row in results]
 
+def addQuestion(question, textbook_id):
+    try:
+        db = sqlite3.connect(DB_FILE)
+        cur = db.cursor()
+        cur.execute('''
+            INSERT INTO questions (content, Textbook_id)  
+            VALUES (?, ?)
+        ''', (question, textbook_id))
+    except sqlite3.Error as e:
+        print(f"Database error: {e}")
+    finally:
+        db.commit()
+        cur.close()
+        db.close()
 #storePDF('Brocks Biology of Microorganisms', "./static/Brock Biology of Microorganisms.pdf", None)
