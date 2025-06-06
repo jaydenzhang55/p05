@@ -46,8 +46,8 @@ def check_password(username, password):
 
 @app.route('/', methods=['GET', 'POST'])
 def main():
+    all = db.getAllPDFs()
     if signed_in():
-        all = db.getAllPDFs()
         if request.method == "POST":
             userRequest = request.form.get('request')
             try:
@@ -78,7 +78,7 @@ def main():
     else:
         if request.method == "POST":
             flash("You must be signed in to request.", 'error')
-        return render_template("index.html", loggedIn=False, username=None)
+        return render_template("index.html", loggedIn=False, username=None, all=all)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -161,11 +161,14 @@ def book():
             username = session["username"]
             db.removeSave(username, title)
     else:
-        alreadySaved = db.getSaved(session['username'])
-        if title in alreadySaved:
-            saved = True
-        else:
+        if not signed_in():
             saved = False
+        else:
+            alreadySaved = db.getSaved(session['username'])
+            if title in alreadySaved:
+                saved = True
+            else:
+                saved = False
 
     video = None
     explanation = None
@@ -183,7 +186,7 @@ def book():
     if not signed_in():
         return render_template("book.html", loggedIn=False, username='', title=title, pdf_b64=pdf_b64, all=all, explanation=explanation, prompt=prompt, video=video, saved = saved)
     else:
-        return render_template("book.html", username=session.get('username'), loggedIn=True, title=title, pdf_b64=pdf_b64, all=all, explanation=explanation, prompt=prompt, video=video saved = saved)
+        return render_template("book.html", username=session.get('username'), loggedIn=True, title=title, pdf_b64=pdf_b64, all=all, explanation=explanation, prompt=prompt, video=video, saved = saved)
     
 @app.route('/search', methods=['GET', 'POST'])
 def search():
