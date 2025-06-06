@@ -194,14 +194,6 @@ def book():
     explanation = None
     prompt = ""
 
-<<<<<<< HEAD
-    if pdf_data:
-        pdf_b64 = base64.b64encode(pdf_data).decode('utf-8')
-    if signed_in():
-            return render_template("book.html", loggedIn=True, username=session['username'], title=title, pdf_b64=pdf_b64, all=all)
-    else:
-        return render_template("book.html", loggedIn=False, username='', title=title, pdf_b64=pdf_b64, all=all)
-=======
     if not signed_in():
         return render_template("book.html", loggedIn=False, username='', title=title, pdf_b64=pdf_b64, all=all, explanation=explanation, prompt=prompt, video=video )
 
@@ -217,7 +209,6 @@ def book():
             explanation = sol.getGeminiMedia(api_key, uploaded_file)
 
     return render_template( "book.html", username=session.get('username'), loggedIn=True, title=title, pdf_b64=pdf_b64, all=all, explanation=explanation, prompt=prompt, video=video )
->>>>>>> fc1491c25fe36304bcd3cc87196d0c61d700e9c0
     
 @app.route('/search', methods=['GET', 'POST'])
 def search():
@@ -528,7 +519,7 @@ def PDF(pdf_link, query):
 #     os.remove(compressedPath)
 
 def getAIKey():
-    with open("app/keys/key_AI.txt", "r") as file:
+    with open("keys/key_AI.txt", "r") as file:
         return file.read().strip()
 
 
