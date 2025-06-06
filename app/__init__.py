@@ -161,7 +161,12 @@ def book():
             username = session["username"]
             db.removeSave(username, title)
     else:
-        saved = False
+        alreadySaved = db.getSaved(session['username'])
+        if title in alreadySaved:
+            saved = True
+        else:
+            saved = False
+
     video = None
     explanation = None
     prompt = ""
@@ -176,9 +181,9 @@ def book():
             explanation = sol.getGeminiMedia(api_key, uploaded_file)
 
     if not signed_in():
-        return render_template("book.html", loggedIn=False, username='', title=title, pdf_b64=pdf_b64, all=all, explanation=explanation, prompt=prompt, video=video)
+        return render_template("book.html", loggedIn=False, username='', title=title, pdf_b64=pdf_b64, all=all, explanation=explanation, prompt=prompt, video=video, saved = saved)
     else:
-        return render_template("book.html", username=session.get('username'), loggedIn=True, title=title, pdf_b64=pdf_b64, all=all, explanation=explanation, prompt=prompt, video=video)
+        return render_template("book.html", username=session.get('username'), loggedIn=True, title=title, pdf_b64=pdf_b64, all=all, explanation=explanation, prompt=prompt, video=video saved = saved)
     
 @app.route('/search', methods=['GET', 'POST'])
 def search():
