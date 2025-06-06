@@ -94,8 +94,7 @@
                 {% if list %}
                 <form method="POST" action="/search" class="inline">
                     <input type="hidden" name="search" value="{{ search }}">
-                    <input type="hidden" name="sort" value="{{ sort }}">
-                    <input type="hidden" name="showAll" value="true">
+                    <input type="hidden" name="showAll" value="{% if showAll %}true{% else %}false{% endif %}">
                     <label for="sortSelect" class="text-sm font-medium text-gray-700 mr-2">Sort by:</label>
                     <select name="sort" id="sortSelect"
                         class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -129,8 +128,8 @@
         <div class="ml-10 mt-10 mb-10 max-w-3xl" id="searchResult">
             <ul>
                 {% if showAll %}
-                    {% if allPdfs %}
-                        {% for pdf in allPdfs %}
+                    {% if list %}
+                        {% for pdf in list %}
                         <form method="POST" action="/book"
                             class="transition ease-in-out duration-500 px-6 py-4 my-4 bg-blue-100 hover:bg-blue-800 hover:text-white rounded-md cursor-pointer">
                             <input type="hidden" name="title" value="{{ pdf }}">
@@ -147,12 +146,14 @@
                         {% for pdf in list %}
                         <form method="POST" action="/book"
                             class="transition ease-in-out duration-500 px-6 py-4 my-4 bg-blue-100 hover:bg-blue-800 hover:text-white rounded-md cursor-pointer">
-                            <input type="hidden" name="title" value="{{ pdf }}">
-                            <button type="submit" class="w-full text-left font-bold">
-                                {{ pdf }}
-                            </button>
+                        <input type="hidden" name="title" value="{{ pdf }}">
+                        <button type="submit" class="w-full text-left font-bold">
+                            {{ pdf }}
+                        </button>
                         </form>
                         {% endfor %}
+                    {% else %}
+                    <div class="text-gray-600 mt-4">No PDFs available.</div>
                     {% endif %}
                 {% endif %}
         
