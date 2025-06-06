@@ -180,9 +180,12 @@ Target Ship Date: 2025-06-06
         <h1 class=" w-1/2 text-center py-5 text-3xl underline bold text-blue-700">{{title}}</h1>
         {% if loggedIn%}
         <form class="w-1/2 flex items-center justify-center" method="POST">
-            <input type="hidden" name="save" value="true"></input>
             <input type="hidden" name="title" value="{{ title }}">
-            <button type="submit" name="saveButton" value={{title}} class="bg-blue-600 text-white px-4 py-2 rounded-3xl hover:bg-blue-500 transition">Save</button>
+            {% if not saved%}
+                <button type="submit" name="save" value="true" class="bg-blue-600 text-white px-4 py-2 rounded-3xl hover:bg-blue-500 transition">Save</button>
+            {% else %}
+                <button type="submit" name="save" value="false" class="bg-blue-600 text-white px-4 py-2 rounded-3xl hover:bg-blue-500 transition">Unsave</button>
+            {% endif %}
         </form>
         {% endif %}
     </div>
