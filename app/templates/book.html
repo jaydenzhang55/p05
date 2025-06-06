@@ -24,6 +24,81 @@ Target Ship Date: 2025-06-06
             display: block;
             box-shadow: 0 0 10px #aaa;
         }
+        .pdf-page {
+            border: 2px solid #ddd;
+            margin: 10px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .pdf-tools {
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 10;
+            border-bottom: 1px solid #ddd;
+        }
+        .selection-overlay {
+            position: absolute;
+            pointer-events: none;
+            border: 2px dashed #3b82f6;
+            background: rgba(59, 130, 246, 0.1);
+            z-index: 5;
+        }
+        .pdf-container-wrapper {
+            position: relative;
+        }
+        .selecting {
+            cursor: crosshair !important;
+        }
+        .selecting * {
+            cursor: crosshair !important;
+        }
+        #pdf-container {
+            height: calc(100vh - 200px) !important;
+            overflow: auto !important;
+            position: relative;
+            padding: 20px;
+        }
+        
+        .canvas-wrapper {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 20px 0;
+            width: max-content;
+            margin: 0 auto;
+        }
+
+        .canvas-wrapper canvas {
+            display: block;
+            margin: 0 auto;
+        }
+        
+        .page-wrapper {
+            margin-bottom: 20px;
+            text-align: center;
+            width: max-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .page-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .all-pages-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            width: max-content;
+            margin: 0 auto;
+            padding: 20px 0;
+        }
+        
     </style>
     <title>Display PDF</title>
     <script src="../static/js/main.js"></script>
@@ -34,7 +109,6 @@ Target Ship Date: 2025-06-06
     </script>
     {% endblock %}
 </head>
-
 
 <body class="bg-white text-black font-sans">
     <nav class="flex flex-row justify-between items-center h-20 w-full bg-white border border-b-gray-300 shadow-md">
@@ -69,54 +143,455 @@ Target Ship Date: 2025-06-06
             </li>
         </ul>
     </nav>
+    
     <div class="flex flex-row w-full px-5 py-10">
-        <div id="pdf-container" class="items-center justify-center w-1/2 overflow-auto max-h-screen border border-2 border-black p-5 rounded-lg"></div>
+        <div class="w-1/2">
+            <div class="pdf-tools p-4 bg-gray-50 rounded-t-lg border">
+                <div class="flex flex-wrap items-center gap-4">
+                    <div class="flex items-center gap-2">
+                        <button id="zoom-out" class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition">-</button>
+                        <input id="zoom-input" type="number" min="25" max="400" step="25" class="w-16 px-2 py-1 border rounded text-center" value="100">
+                        <span class="text-sm">%</span>
+                        <button id="zoom-in" class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition">+</button>
+                        <button id="zoom-fit" class="px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-700 transition text-sm">Fit</button>
+                    </div>
+                    
+                    <div class="flex items-center gap-2">
+                        <button id="prev-page" class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition">◀</button>
+                        <span class="text-sm">Page</span>
+                        <input id="page-input" type="number" min="1" class="w-16 px-2 py-1 border rounded text-center" value="1">
+                        <span class="text-sm">of <span id="total-pages">-</span></span>
+                        <button id="next-page" class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition">▶</button>
+                    </div>
+                    
+                    <div class="flex items-center gap-2">
+                        <button id="screenshot" class="px-3 py-1 bg-purple-600 text-white rounded hover:bg-purple-700 transition">📷 Full</button>
+                        <button id="screenshot-select" class="px-3 py-1 bg-orange-600 text-white rounded hover:bg-orange-700 transition">✂️ Select</button>
+                        <button id="cancel-select" class="px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-700 transition hidden">Cancel</button>
+                    </div>
+                    
+                    <div class="flex items-center gap-2">
+                        <label class="text-sm">View:</label>
+                        <select id="view-mode" class="px-2 py-1 border rounded text-sm">
+                            <option value="single">Single Page</option>
+                            <option value="all">All Pages</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="pdf-container-wrapper">
+                <div id="pdf-container" class="overflow-auto max-h-screen border border-t-0 border-2 border-black p-5 rounded-b-lg bg-gray-100 flex flex-col items-center"></div>
+                <div id="selection-overlay" class="selection-overlay hidden"></div>
+            </div>
+        </div>
     </div>
 
     <script>
     const pdfB64 = `{{ pdf_b64 | safe }}`;
+    
+    let pdfDoc = null;
+    let renderScale = 2.0; // if you zoom in, it becomes better quality so higher renderScale = more quality
+    let displayScale = 1.0; // zooming in
+    let currentPage = 1;
+    let totalPages = 0;
+    let viewMode = 'single';
+    let renderedPages = {};
+    
+    let isSelecting = false; // for the screenshot tool
+    let selectionStart = null;
+    let selectionEnd = null;
+    let selectionActive = false;
 
-    if (!pdfB64) {
-        document.getElementById('pdf-container').insertAdjacentText('beforebegin', "No PDF data available.");
+    const container = document.getElementById('pdf-container'); // connecting each html element w/ js
+    const zoomInBtn = document.getElementById('zoom-in');
+    const zoomOutBtn = document.getElementById('zoom-out');
+    const zoomFitBtn = document.getElementById('zoom-fit');
+    const zoomInput = document.getElementById('zoom-input');
+    const zoomLevel = document.getElementById('zoom-level');
+    const prevPageBtn = document.getElementById('prev-page');
+    const nextPageBtn = document.getElementById('next-page');
+    const pageInput = document.getElementById('page-input');
+    const totalPagesSpan = document.getElementById('total-pages');
+    const screenshotBtn = document.getElementById('screenshot');
+    const screenshotSelectBtn = document.getElementById('screenshot-select');
+    const cancelSelectBtn = document.getElementById('cancel-select');
+    const viewModeSelect = document.getElementById('view-mode');
+    const selectionOverlay = document.getElementById('selection-overlay');
+    const containerWrapper = document.querySelector('.pdf-container-wrapper');
+
+    if (!pdfB64) { // should never be the case but just in case 
+        container.innerHTML = "<p class='text-center text-gray-500 py-8'>No PDF data available.</p>";
     } else {
-        function base64ToUint8Array(base64) {
-            const raw = atob(base64);
-            const uint8Array = new Uint8Array(raw.length);
-            for (let i = 0; i < raw.length; i++) {
-                uint8Array[i] = raw.charCodeAt(i);
-            }
-            return uint8Array;
+        initializePDF(); // renders the pdf
+    }
+
+    function base64ToUint8Array(base64) { // since blob is in base64, convert to allow pdfjLib to work
+        const raw = atob(base64);
+        const uint8Array = new Uint8Array(raw.length);
+        for (let i = 0; i < raw.length; i++) {
+            uint8Array[i] = raw.charCodeAt(i);
         }
+        return uint8Array;
+    }
 
+    function initializePDF() {
         const pdfData = base64ToUint8Array(pdfB64);
-        const container = document.getElementById('pdf-container');
-
-        pdfjsLib.getDocument({ data: pdfData }).promise.then(function (pdfDoc) {
-            const numPages = pdfDoc.numPages;
-
-            for (let pageNum = 1; pageNum <= numPages; pageNum++) {
-                pdfDoc.getPage(pageNum).then(function (page) {
-                    const scale = 1.45;
-                    const viewport = page.getViewport({ scale: scale });
-
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    canvas.width = viewport.width;
-                    canvas.height = viewport.height;
-                    canvas.setAttribute('class', 'b-b-2 border')
-
-                    container.appendChild(canvas);
-
-                    const renderContext = {
-                        canvasContext: ctx,
-                        viewport: viewport
-                    };
-                    page.render(renderContext);
-                });
-            }
+        
+        pdfjsLib.getDocument({ data: pdfData }).promise.then(function (pdf) { // waits for the data to fully complete and then returns PDFDocumentLoadingTask
+            pdfDoc = pdf; // attributes of the pdf as per the api.js documentation
+            totalPages = pdf.numPages;
+            totalPagesSpan.textContent = totalPages;
+            pageInput.max = totalPages;
+            
+            renderCurrentView(); // what loads
+            setupEventListeners();
         }).catch(function (error) {
             console.error('Error loading PDF:', error);
-            document.getElementById('pdf-container').insertAdjacentText('beforebegin', "Failed to load PDF.");
+            container.innerHTML = "<p class='text-center text-red-500 py-8'>Failed to load PDF.</p>";
+        });
+    }
+
+    function renderPage(pageNum) {
+        return pdfDoc.getPage(pageNum).then(function (page) {
+            // Source: https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/scale
+            const viewport = page.getViewport({ scale: renderScale });
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+            canvas.className = 'pdf-page w-full transition-transform duration-200';
+            canvas.setAttribute('data-page', pageNum);
+            canvas.style.transform = `scale(${displayScale})`; // scales up and then matches with the display port
+            canvas.style.transformOrigin = 'center center';
+            
+            const renderContext = {
+                canvasContext: ctx,
+                viewport: viewport
+            };
+            
+            return page.render(renderContext).promise.then(() => canvas); // waits for page.render's promise and then returns canvas
+        });
+    }
+
+    function renderCurrentView() {
+        container.innerHTML = '';
+        if (viewMode === 'single') {
+            renderPage(currentPage).then(canvas => { // waits for page to be rendered
+                const wrapper = document.createElement('div');
+                wrapper.className = 'canvas-wrapper';
+                wrapper.appendChild(canvas); // wrapper wraps canvas
+                container.appendChild(wrapper); // html container wraps wrapper
+                const originalWidth = canvas.width / renderScale; // calculate display dimensions for the canvas
+                const originalHeight = canvas.height / renderScale;
+                const displayWidth = originalWidth * displayScale;
+                const displayHeight = originalHeight * displayScale;
+                canvas.style.width = displayWidth + 'px'; // set the canvas size
+                canvas.style.height = displayHeight + 'px';
+                
+                updateUI();
+                updateZoomDisplay();
+            });
+        } else {
+            const pageList = [];
+            for (let i = 1; i <= totalPages; i++) {
+                pageList.push(renderPage(i)); // each page is added to the pageList
+            }
+            Promise.all(pageList).then(canvases => {
+                canvases.forEach((canvas, index) => { // each canvas in pageList is wrapped
+                    const pageWrapper = document.createElement('div');
+                    pageWrapper.className = 'page-wrapper';
+                    
+                    const pageLabel = document.createElement('div'); // label for each page
+                    pageLabel.className = 'page-label';
+                    pageLabel.textContent = `Page ${index + 1}`;
+
+                    pageWrapper.appendChild(pageLabel);
+                    pageWrapper.appendChild(canvas);
+                    container.appendChild(pageWrapper); // same as the single page
+
+                    const originalWidth = canvas.width / renderScale; // finds the width and height using scale
+                    const originalHeight = canvas.height / renderScale;
+                    
+                    canvas.style.width = (originalWidth * displayScale) + 'px'; // changes width and height
+                    canvas.style.height = (originalHeight * displayScale) + 'px';
+                });
+                updateUI();
+                updateZoomDisplay();
+            });
+        }
+    }
+
+    function updateZoom(newScale) {
+        displayScale = Math.max(0.25, Math.min(4.0, newScale)); // sets bounds for the zoom
+        if (viewMode === 'single') {
+            const canvas = container.querySelector('canvas');
+            const wrapper = container.querySelector('.canvas-wrapper');
+            if (canvas && wrapper) { // if both are present, the canvas size is changed to matched the displayScale
+                const originalWidth = canvas.width / renderScale;
+                const originalHeight = canvas.height / renderScale;
+                const displayWidth = originalWidth * displayScale;
+                const displayHeight = originalHeight * displayScale;
+                
+                canvas.style.width = displayWidth + 'px';
+                canvas.style.height = displayHeight + 'px';
+            }
+        } else {
+            const canvases = container.querySelectorAll('canvas');
+            canvases.forEach(canvas => { // same as the if statement above but iterates through each canvas
+                const originalWidth = canvas.width / renderScale;
+                const originalHeight = canvas.height / renderScale;
+                
+                canvas.style.width = (originalWidth * displayScale) + 'px';
+                canvas.style.height = (originalHeight * displayScale) + 'px';
+            });
+        }
+        updateUI();
+        updateZoomDisplay();
+    }
+
+    function fitToWidth() {
+        if (viewMode === 'single' && pdfDoc) {
+            pdfDoc.getPage(currentPage).then(function(page) { // changes the width of the pdf's page and resizes the container to match the width
+                const viewport = page.getViewport({ scale: 1.0 });
+                const containerWidth = container.clientWidth - 40; // account for padding
+                const pageWidth = viewport.width;
+                const fitScale = containerWidth / pageWidth;
+                updateZoom(fitScale);
+            });
+        } else {
+            updateZoom(1.0); //100% for all pages view
+        }
+    }
+    
+    function fitToHeight() {
+        if (viewMode === 'single' && pdfDoc) {
+            pdfDoc.getPage(currentPage).then(function(page) { // changes the height of the pdf's page and resizes the container to match the height
+                const viewport = page.getViewport({ scale: 1.0 });
+                const containerHeight = container.clientHeight - 20; // Account for padding
+                const pageHeight = viewport.height;
+                const fitScale = containerHeight / pageHeight;
+                updateZoom(fitScale);
+            });
+        } else {
+            updateZoom(1.0); // 100% for all pages view
+        }
+    }
+    
+    function updateZoomDisplay() {
+        const zoomPercent = Math.round(displayScale * 100); // just shows the display scale
+        zoomInput.value = zoomPercent; 
+    }
+
+    function updateUI() {
+        pageInput.value = currentPage;
+        prevPageBtn.disabled = currentPage <= 1; // disables button if the page is beginning or end
+        nextPageBtn.disabled = currentPage >= totalPages;
+        
+        if (prevPageBtn.disabled) { // change css for fun
+            prevPageBtn.className = prevPageBtn.className.replace('hover:bg-blue-700', '').replace('bg-blue-600', 'bg-gray-400');
+        } else {
+            prevPageBtn.className = prevPageBtn.className.replace('bg-gray-400', 'bg-blue-600') + ' hover:bg-blue-700';
+        }
+        
+        if (nextPageBtn.disabled) {
+            nextPageBtn.className = nextPageBtn.className.replace('hover:bg-blue-700', '').replace('bg-blue-600', 'bg-gray-400');
+        } else {
+            nextPageBtn.className = nextPageBtn.className.replace('bg-gray-400', 'bg-blue-600') + ' hover:bg-blue-700';
+        }
+    }
+
+    function takeScreenshot() { // returns the page 
+        const canvas = container.querySelector('canvas[data-page="' + currentPage + '"]') || container.querySelector('canvas'); // takes a "screenshot" of a page or if its only 1 page then all of it
+        if (!canvas) return;
+        
+        const link = document.createElement('a'); // download link so it auto downloads
+        link.download = `page-${viewMode === 'single' ? currentPage : 'all'}-screenshot.png`; // download link
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    }
+    
+    function startSelection() { // this is for a screenshot selection
+        isSelecting = true;
+        selectionActive = false;
+        containerWrapper.classList.add('selecting');
+        screenshotSelectBtn.textContent = '✂️ Selecting...';
+        screenshotSelectBtn.disabled = true;
+        cancelSelectBtn.classList.remove('hidden');
+        selectionOverlay.classList.add('hidden');
+    }
+    
+    function cancelSelection() { // when ur in selection and cancel it or when it finishes
+        isSelecting = false;
+        selectionActive = false;
+        containerWrapper.classList.remove('selecting');
+        screenshotSelectBtn.textContent = '✂️ Select';
+        screenshotSelectBtn.disabled = false;
+        cancelSelectBtn.classList.add('hidden');
+        selectionOverlay.classList.add('hidden');
+        selectionStart = null;
+        selectionEnd = null;
+    }
+    
+    function updateSelectionOverlay(startX, startY, endX, endY) {
+        const left = Math.min(startX, endX);
+        const top = Math.min(startY, endY);
+        const width = Math.abs(endX - startX);
+        const height = Math.abs(endY - startY);
+        
+        selectionOverlay.style.left = left + 'px';
+        selectionOverlay.style.top = top + 'px';
+        selectionOverlay.style.width = width + 'px';
+        selectionOverlay.style.height = height + 'px';
+        selectionOverlay.classList.remove('hidden');
+    }
+    
+    function takeSelectionScreenshot() {
+        // Sources: https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
+        if (!selectionActive || !selectionStart || !selectionEnd) return; // if no selection do not take screenshot
+        
+        const canvas = container.querySelector('canvas[data-page="' + currentPage + '"]') || container.querySelector('canvas'); // grabs the current page ur viewing
+        if (!canvas) return;
+        
+        const containerRect = container.getBoundingClientRect();
+        const canvasRect = canvas.getBoundingClientRect();
+        
+        const scaleX = canvas.width / (canvasRect.width * displayScale); // if they scale it, calc it relative to what they see
+        const scaleY = canvas.height / (canvasRect.height * displayScale); // if no scale, it should be 1
+        
+        const left = Math.min(selectionStart.x, selectionEnd.x) - (canvasRect.left - containerRect.left); // where the corners are of the selected region
+        const top = Math.min(selectionStart.y, selectionEnd.y) - (canvasRect.top - containerRect.top);
+        const width = Math.abs(selectionEnd.x - selectionStart.x);
+        const height = Math.abs(selectionEnd.y - selectionStart.y);
+        
+        const croppedCanvas = document.createElement('canvas');
+        const ctx = croppedCanvas.getContext('2d');
+        
+        croppedCanvas.width = width * scaleX; // width and height
+        croppedCanvas.height = height * scaleY;
+        
+        // Source: https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/drawImage
+
+        ctx.drawImage(canvas, left * scaleX, top * scaleY, width * scaleX, height * scaleY, 0, 0, croppedCanvas.width, croppedCanvas.height); // draws the canvas
+
+        const link = document.createElement('a'); // same as above
+        link.download = `page-${currentPage}-selection-screenshot.png`;
+        link.href = croppedCanvas.toDataURL('image/png');
+        link.click();
+        
+        cancelSelection();
+    }
+
+    function setupEventListeners() {
+        zoomInBtn.addEventListener('click', () => updateZoom(displayScale * 1.25)); // buttons for zooming
+        zoomOutBtn.addEventListener('click', () => updateZoom(displayScale * 0.8));
+        zoomFitBtn.addEventListener('click', fitToWidth);
+        
+        // ADDED ZOOM INPUT EVENT LISTENER
+        zoomInput.addEventListener('change', (e) => {
+            const zoomPercent = parseInt(e.target.value);
+            if (zoomPercent >= 25 && zoomPercent <= 400) {
+                updateZoom(zoomPercent / 100);
+            } else {
+                updateZoomDisplay(); // Reset to current value if invalid
+            }
+        });
+        
+        zoomInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const zoomPercent = parseInt(e.target.value);
+                if (zoomPercent >= 25 && zoomPercent <= 400) {
+                    updateZoom(zoomPercent / 100);
+                } else {
+                    updateZoomDisplay(); // Reset to current value if invalid
+                }
+            }
+        });
+        
+        prevPageBtn.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                if (viewMode === 'single') renderCurrentView(); // just goes back a page and renders
+                else updateUI();
+            }
+        });
+        
+        nextPageBtn.addEventListener('click', () => {
+            if (currentPage < totalPages) {
+                currentPage++;
+                if (viewMode === 'single') renderCurrentView(); // just goes ahead a page and renders
+                else updateUI();
+            }
+        });
+        
+        pageInput.addEventListener('change', (e) => { // just goes to the page you want and renders
+            const page = parseInt(e.target.value);
+            if (page >= 1 && page <= totalPages) {
+                currentPage = page;
+                if (viewMode === 'single') renderCurrentView();
+                else updateUI();
+            }
+        });
+        
+        screenshotBtn.addEventListener('click', takeScreenshot); // other buttons that use prev functions
+        screenshotSelectBtn.addEventListener('click', startSelection);
+        cancelSelectBtn.addEventListener('click', cancelSelection);
+        
+        containerWrapper.addEventListener('mousedown', (e) => { // where the mouse is, is the starting point
+            if (!isSelecting) return;
+            
+            const rect = containerWrapper.getBoundingClientRect();
+            selectionStart = {
+                x: e.clientX - rect.left,
+                y: e.clientY - rect.top
+            };
+            selectionActive = true;
+            e.preventDefault();
+        });
+        
+        containerWrapper.addEventListener('mousemove', (e) => { // dragging the mouse causes the selectionEnd to change
+            if (!isSelecting || !selectionStart) return;
+            
+            const rect = containerWrapper.getBoundingClientRect();
+            selectionEnd = {
+                x: e.clientX - rect.left,
+                y: e.clientY - rect.top
+            };
+            
+            updateSelectionOverlay(selectionStart.x, selectionStart.y, selectionEnd.x, selectionEnd.y); // makes the box bigger depending on where your mouse moves
+        });
+        
+        containerWrapper.addEventListener('mouseup', (e) => { // finalizes selectionEnd when the mouse goes up
+            if (!isSelecting || !selectionStart) return;
+            
+            const rect = containerWrapper.getBoundingClientRect();
+            selectionEnd = {
+                x: e.clientX - rect.left,
+                y: e.clientY - rect.top
+            };
+            
+            const width = Math.abs(selectionEnd.x - selectionStart.x);  // checks if selection is large enough 
+            const height = Math.abs(selectionEnd.y - selectionStart.y);
+            
+            if (width > 10 && height > 10) { // at least 10 px or the image would be bad
+            // Source: https://developer.mozilla.org/en-US/docs/Web/API/Window/confirm
+                setTimeout(() => {
+                    if (confirm('Take screenshot of selected area?')) { // gives a confirming message to take screenshot
+                        takeSelectionScreenshot();
+                    } else {
+                        cancelSelection();
+                    }
+                }, 100);
+            } else {
+                cancelSelection();
+            }
+        });
+        
+        viewModeSelect.addEventListener('change', (e) => { // one page or all pages
+            viewMode = e.target.value;
+            updateZoom(1.0); // fixes a bug where the zoom glitches out
+            renderCurrentView();
         });
     }
     </script>
