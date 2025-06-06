@@ -97,18 +97,22 @@ def login():
         username = request.form.get('username')
         password = request.form.get('pw')
         if not check_user(username):
-            return render_template("login.html", message="No such username exists", loggedIn=False, all=all)
+            flash("No such username exists!")
+            return render_template("login.html", loggedIn=False, all=all)
         if not check_password(username, password):
-            return render_template("login.html", message="Incorrect password", loggedIn=False, all=all)
+            flash("Incorrect password")
+            return render_template("login.html", loggedIn=False, all=all)
         session['username'] = username
         session["password"] = request.form.get("pw")
+        flash("Successfully created account!")
         return redirect('/')
      return render_template("login.html", loggedIn=False, all=all)
 
 @app.route('/solution', methods=['GET', 'POST'])
 def solution():
     if not signed_in():
-        return render_template("login.html", message="Not logged in!", loggedIn=False)
+        flash("You need to be logged in to use solutions!")
+        return render_template("login.html", loggedIn=False)
 
     video = None 
     explanation = None
@@ -186,8 +190,6 @@ def book():
     video = None
     explanation = None
     prompt = ""
-
-
     if request.method == "POST":
         api_key = getAIKey()
         prompt = request.form.get("prompt", "")
