@@ -144,7 +144,8 @@ def book():
     title = request.form.get("title")
     pdf_data = None
     pdf_b64 = ""
-    save = request.form.get('saveButton')
+    save = request.form.get('save')
+    print(save)
     if title:
         result = db.searchForPDFData(title)
         if result:
