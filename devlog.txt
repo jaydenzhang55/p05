@@ -21,17 +21,23 @@ jaydenZ, margieC, dannyH, kyleL -- 2025-05-07 22:45
   - decided on a MVP (creating an engine for the project)
 
 dannyH -- 2025-05-09 11:40
-  - Created working flask app
+  - created working flask app
 
 dannyH -- 2025-05-12 11:40
   - created templates and basic linkage on flask
 
 dannyH -- 2025-05-13 11:44
-  - Nav bar in index.html and login + register flask code
+  - nav bar in index.html and login + register flask code
+
+dannyH -- 2025-05-16 11:48
+  - fixed nav bar css
+
+jaydenZ -- 2025-05-18 13:21
+  - working on scraping the web for textbooks
 
 kyleL -- 2025-05-19 11:40
- - Added API keys 
- - Added Gemini API code that generates video and text solutions when given a query
+ - added API keys 
+ - added Gemini API code that generates video and text solutions when given a query
 
 *Python Style Guide (PEP 8):*
  - Function and variable naming conventions (snake_case) — consistency across scraping, PDF parsing, and AI response logic.
@@ -71,17 +77,48 @@ Example:
 ```const handleUpload = async (event) => {}```
 Clear use of const, arrow function, and asynchronous handling in a concise, modern format.
 
+dannyH -- 2025-05-27 11:41
+  - worked on search template
+
+jaydenZ -- 2025-05-27 11:42
+  - added logged in / logged out logic to routes
+
+margieC -- 2025-05-27 11:48
+  - added search for pdf method in db
+
 dannyH -- 2025-05-28 11:33
   - Filled up landing page.
   - Fixed JS errors when sending requests to JS through the html from Python
   - Used JS to create error screen in Search when search result is not found
 
-jaydenZ, margieC, dannyH, kyleL -- 2025-06-06 12:00
+jaydenZ, margieC, dannyH, kyleL -- 2025-05-29 10:15
+  - updated book and search pages
+  - added an upload page, works and shows in search
+  - fixed nav bar for all pages and search functionalities
+  - worked on solutions and API implementation
+
+kyleL -- 2025-06-03 11:29
+ - worked on solutions page
+
+jaydenZ, margieC, dannyH, kyleL -- 2025-06-04 11:45
+  - created tos page
+  - worked on save page and db methods
+  - fixed js and book html
+  - adding prompt and image option for solutions
+
+jaydenZ, margieC, dannyH, kyleL -- 2025-06-06 0:15
   - Completed MVP, basic functions working
   - Search bar options
   - AI Generated solution
 
-jaydenZ, margieC, dannyH, kyleL -- 2025-06-07 2:17
+FINAL DESIGN DOC REVISIONS:
+  - added saved and questions table
+  - added solutions and upload pages
+  - changed from selenium package to beautiful soup
+  - added pikepdf package
+  - added a tos
+
+jaydenZ, margieC, dannyH, kyleL -- 2025-06-06 2:17
   - Completed project
   - Users are able to save
   - Users have additional features when accessing pdfs
