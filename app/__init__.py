@@ -181,7 +181,7 @@ def book():
             explanation = sol.getGeminiExplaination(api_key, prompt)
             video = sol.getGeminiVideo(api_key, prompt)
         elif api_key and uploaded_file:
-            explanation = sol.getGeminiMedia(api_key, uploaded_file)
+            explanation = sol.getGeminiVideo(api_key, uploaded_file)
 
     if not signed_in():
         return render_template("book.html", loggedIn=False, username='', title=title, pdf_b64=pdf_b64, all=all, explanation=explanation, prompt=prompt, video=video, saved = saved)
