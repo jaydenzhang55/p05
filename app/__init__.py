@@ -85,36 +85,37 @@ def main():
                 flash('Scraping file unsuccessful.', 'error')
             else:
                 flash('File scraped successfully!', 'success')
-        return render_template("index.html", loggedIn="true", username=session['username'])
+        return render_template("index.html", loggedIn=True, username=session['username'], all=all)
     else:
-        return render_template("index.html", loggedIn="false", username=None)
+        return render_template("index.html", loggedIn=False, username=None, all=all)
     
 @app.route('/tos', methods=['GET', 'POST'])
 def tos():
     if signed_in():
-        return render_template("index.html", loggedIn="true", username=session['username'])
-    return render_template("tos.html", loggedIn="false", username='')
+        return render_template("index.html", loggedIn=True, username=session['username'])
+    return render_template("tos.html", loggedIn=False, username='')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+     all = db.getAllPDFs()
      if signed_in():
         return redirect('/')
      elif request.method == "POST":
         username = request.form.get('username')
         password = request.form.get('pw')
         if not check_user(username):
-            return render_template("login.html", message="No such username exists", loggedIn="false")
+            return render_template("login.html", message="No such username exists", loggedIn=False, all=all)
         if not check_password(username, password):
-            return render_template("login.html", message="Incorrect password", loggedIn="false")
+            return render_template("login.html", message="Incorrect password", loggedIn=False, all=all)
         session['username'] = username
         session["password"] = request.form.get("pw")
         return redirect('/')
-     return render_template("login.html", loggedIn="false")
+     return render_template("login.html", loggedIn=False, all=all)
 
 @app.route('/solution', methods=['GET', 'POST'])
 def solution():
     if not signed_in():
-        return render_template("login.html", message="Not logged in!", loggedIn="false")
+        return render_template("login.html", message="Not logged in!", loggedIn=False)
 
     video = None 
     explanation = None
@@ -127,11 +128,12 @@ def solution():
             explanation = sol.getGeminiExplaination(api_key, prompt)
             video = sol.getGeminiVideo(api_key, prompt)
 
-    return render_template("solutions.html",username = session['username'], explanation=explanation, prompt=prompt, video=video, loggedIn="true")
+    return render_template("solutions.html",username = session['username'], explanation=explanation, prompt=prompt, video=video, loggedIn=True)
 
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    all = db.getAllPDFs()
     if signed_in():
         return redirect('/')
     elif request.method == "POST":
@@ -144,8 +146,8 @@ def register():
             session["password"] = password
             return redirect('/login')
         else:
-            return render_template('register.html', message="Username already exists", loggedIn="false")
-    return render_template("register.html", loggedIn="false")
+            return render_template('register.html', message="Username already exists", loggedIn=False, all=all)
+    return render_template("register.html", loggedIn=False, all=all)
 
 @app.route('/saved', methods=['GET', 'POST'])
 def save():
@@ -158,26 +160,40 @@ def save():
 @app.route('/saved/<username>', methods=['GET', 'POST'])
 def saved(username):
     if signed_in():
+        all = db.getAllPDFs()
         save = db.getSaved()
-        return render_template("saved.html", loggedIn="true", username=session['username'], saves=save)
+        return render_template("saved.html", loggedIn="true", username=session['username'], saves=save, all=all)
     else:
         flash("You must be signed in to view saved items.")
         return redirect(url_for('login'))
 
 @app.route('/book', methods=['GET', 'POST'])
 def book():
+    all = db.getAllPDFs()
     title = request.form.get("title")
     pdf_data = db.searchForPDFData(title)[0]
+    saved = True
+
+    save = request.form.get('saveButton')
+    if save is not None:
+        if save =="true":
+            save = True
+        else:
+            saved = False
+    else:
+        saved = False
+
 
     if pdf_data:
         pdf_b64 = base64.b64encode(pdf_data).decode('utf-8')
     if signed_in():
-            return render_template("book.html", loggedIn="true", username=session['username'], title=title, pdf_b64=pdf_b64)
+            return render_template("book.html", loggedIn=True, username=session['username'], title=title, pdf_b64=pdf_b64, all=all)
     else:
-        return render_template("book.html", loggedIn="false", username='', title=title, pdf_b64=pdf_b64)
+        return render_template("book.html", loggedIn=False, username='', title=title, pdf_b64=pdf_b64, all=all)
     
 @app.route('/search', methods=['GET', 'POST'])
 def search():
+    all = db.getAllPDFs()
     if request.method == 'POST':
         search_term = request.form.get('search')
 
@@ -193,12 +209,12 @@ def search():
         if signed_in():
             print(session['username'])
             return render_template(
-                "search.html",loggedIn="true",search=search_term, searchFound = boolean, list=lists, boolean=boolean, username=session["username"]
+                "search.html",loggedIn=True,search=search_term, searchFound = boolean, list=lists, boolean=boolean, username=session["username"], all=all
             )
         else:
             # Not signed in
             return render_template(
-                "search.html",loggedIn="false",search=search_term,searchFound=boolean, list=lists, boolean=boolean,username=None
+                "search.html",loggedIn=False,search=search_term,searchFound=boolean, list=lists, boolean=boolean,username=None, all=all
             )
 
 @app.route('/logout', methods=['GET', 'POST'])
@@ -209,6 +225,7 @@ def logOut():
     
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
+    all = db.getAllPDFs()
     if signed_in():
         if request.method == 'POST':
             title = request.form.get('title')
@@ -219,8 +236,8 @@ def upload():
                 flash("Upload successful!", "success")
             except Exception as e:
                 flash(str(e), "error")
-            return render_template("upload.html", loggedIn="true", username=session['username'])
-        return render_template("upload.html", loggedIn="true", username=session['username'])
+            return render_template("upload.html", loggedIn=True, username=session['username'], all=all)
+        return render_template("upload.html", loggedIn=True, username=session['username'], all=all)
     return redirect('/login')
 
 #---------------------------Failed--------------------------------
