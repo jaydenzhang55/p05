@@ -25,7 +25,6 @@ cur.execute('''
             FOREIGN KEY(Textbook_id) REFERENCES pdfs(id)
         )
     ''')
-cur.execute("DROP TABLE IF EXISTS saves")
 cur.execute('''
         CREATE TABLE IF NOT EXISTS saves (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
