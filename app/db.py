@@ -267,3 +267,4 @@ def addQuestion(question, textbook_id):
         cur.close()
         db.close()
 #storePDF('Brocks Biology of Microorganisms', "./static/Brock Biology of Microorganisms.pdf", None)
+saveTable()
