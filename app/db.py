@@ -157,7 +157,7 @@ def validatePassword(hash, password):
     return bcrypt.checkpw(password.encode("utf-8"), hash)
 
 def storePDF(title, file_path, data):
-    maxSize=40 * 1024 * 1024 # 40 mb is max
+    maxSize=80 * 1024 * 1024 # 80 mb is max
     with sqlite3.connect(DB_FILE) as db:
         cur = db.cursor()
         cur.execute("SELECT COUNT(*) FROM pdfs WHERE title = ?", (title,))
