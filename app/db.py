@@ -31,7 +31,8 @@ cur.execute('''
             user TEXT,
             pdf TEXT,
             FOREIGN KEY(user) REFERENCES users(username),
-            FOREIGN KEY(pdf) REFERENCES pdfs(title)
+            FOREIGN KEY(pdf) REFERENCES pdfs(title),
+            UNIQUE (user, pdf)
         )
     ''')
 db.commit()
