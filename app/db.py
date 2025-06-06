@@ -25,13 +25,15 @@ cur.execute('''
             FOREIGN KEY(Textbook_id) REFERENCES pdfs(id)
         )
     ''')
+cur.execute("DROP TABLE IF EXISTS saves")
 cur.execute('''
         CREATE TABLE IF NOT EXISTS saves (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user TEXT,
             pdf TEXT,
             FOREIGN KEY(user) REFERENCES users(username),
-            FOREIGN KEY(pdf) REFERENCES pdfs(title)
+            FOREIGN KEY(pdf) REFERENCES pdfs(title),
+            UNIQUE (user, pdf)
         )
     ''')
 db.commit()
