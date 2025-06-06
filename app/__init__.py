@@ -81,12 +81,6 @@ def main():
         if request.method == "POST":
             flash("You must be signed in to request.", 'error')
         return render_template("index.html", loggedIn=False, username=None)
-    
-@app.route('/tos', methods=['GET', 'POST'])
-def tos():
-    if signed_in():
-        return render_template("index.html", loggedIn=True, username=session['username'])
-    return render_template("tos.html", loggedIn=False, username='')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -104,7 +98,6 @@ def login():
             return render_template("login.html", loggedIn=False, all=all)
         session['username'] = username
         session["password"] = request.form.get("pw")
-        flash("Successfully created account!", 'success')
         return redirect('/')
      return render_template("login.html", loggedIn=False, all=all)
 
@@ -141,6 +134,7 @@ def register():
             db.addUser(username, password)
             session["username"] = username
             session["password"] = password
+            flash("Successfully created account!", 'success')
             return redirect('/login')
         else:
             flash("Username already exists!", 'error')
@@ -151,7 +145,7 @@ def register():
 def saved(username):
     if signed_in():
         all = db.getAllPDFs()
-        save = db.getSaved(username)
+        save = db.getSaved(session['username'])
         return render_template("saved.html", loggedIn=True, username=session['username'], saves=save, all=all)
     else:
         flash("You must be signed in to view saved items.")
@@ -196,7 +190,7 @@ def book():
     if not signed_in():
         return render_template("book.html", loggedIn=False, username='', title=title, pdf_b64=pdf_b64, all=all, explanation=explanation, prompt=prompt, video=video)
     else:
-        return render_template("book.html", username=session.get('username'), loggedIn=True, title=title, pdf_b64=pdf_b64, all=all, explanation=explanation, prompt=prompt, video=video, saves = db.getSaved(session.get('username')))
+        return render_template("book.html", username=session.get('username'), loggedIn=True, title=title, pdf_b64=pdf_b64, all=all, explanation=explanation, prompt=prompt, video=video)
     
 @app.route('/search', methods=['GET', 'POST'])
 def search():
