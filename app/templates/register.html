@@ -89,13 +89,27 @@ Target Ship Date: 2025-06-06
 
       <div class="grid place-content-center static space-y-8 py-10 max-w-xl m-auto my-20 rounded-3xl border bg-white">
 
+        <!-- Display flash messages, if any (e.g., username already exists) -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="w-3/4 m-auto my-4 space-y-2">
+            {% for category, message in messages %}
+            <div class="px-4 py-3 rounded-md text-white
+                                                            {% if category == 'success' %} bg-green-500
+                                                            {% elif category == 'error' %} bg-red-500
+                                                            {% elif category == 'warning' %} bg-yellow-500 text-black
+                                                            {% else %} bg-blue-500
+                                                            {% endif %}
+                                                            ">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
         <!-- Main heading for the signup page -->
         <h1 class="text-5xl"> Create an Account! </h1>
-
-        <!-- Display flash messages, if any (e.g., username already exists) -->
-        {% if message %}
-        <p class="bg-red-300 min-w-full p-2 text-red-700 text-center"> {{ message }}</p>
-        {% endif %}
 
         <!-- Signup form for creating a new account -->
         <form class="" method="POST">
