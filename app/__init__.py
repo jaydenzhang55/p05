@@ -59,6 +59,7 @@ def check_password(username, password):
 @app.route('/', methods=['GET', 'POST'])
 def main():
     if signed_in():
+        all = db.getAllPDFs()
         if request.method == "POST":
             userRequest = request.form.get('request')
             try:
@@ -87,7 +88,9 @@ def main():
                 flash('File scraped successfully!', 'success')
         return render_template("index.html", loggedIn=True, username=session['username'], all=all)
     else:
-        return render_template("index.html", loggedIn=False, username=None, all=all)
+        if request.method == "POST":
+            flash("You must be signed in to request.", 'error')
+        return render_template("index.html", loggedIn=False, username=None)
     
 @app.route('/tos', methods=['GET', 'POST'])
 def tos():
@@ -191,6 +194,14 @@ def book():
     explanation = None
     prompt = ""
 
+<<<<<<< HEAD
+    if pdf_data:
+        pdf_b64 = base64.b64encode(pdf_data).decode('utf-8')
+    if signed_in():
+            return render_template("book.html", loggedIn=True, username=session['username'], title=title, pdf_b64=pdf_b64, all=all)
+    else:
+        return render_template("book.html", loggedIn=False, username='', title=title, pdf_b64=pdf_b64, all=all)
+=======
     if not signed_in():
         return render_template("book.html", loggedIn=False, username='', title=title, pdf_b64=pdf_b64, all=all, explanation=explanation, prompt=prompt, video=video )
 
@@ -206,6 +217,7 @@ def book():
             explanation = sol.getGeminiMedia(api_key, uploaded_file)
 
     return render_template( "book.html", username=session.get('username'), loggedIn=True, title=title, pdf_b64=pdf_b64, all=all, explanation=explanation, prompt=prompt, video=video )
+>>>>>>> fc1491c25fe36304bcd3cc87196d0c61d700e9c0
     
 @app.route('/search', methods=['GET', 'POST'])
 def search():
@@ -228,7 +240,6 @@ def search():
                 "search.html",loggedIn=True,search=search_term, searchFound = boolean, list=lists, boolean=boolean, username=session["username"], all=all
             )
         else:
-            # Not signed in
             return render_template(
                 "search.html",loggedIn=False,search=search_term,searchFound=boolean, list=lists, boolean=boolean,username=None, all=all
             )
@@ -302,21 +313,18 @@ def websiteLinkCreator(query):
     try:
         query = query.strip()
         
-        # Archive.org Advanced Search API
         # Parameters:
         # - q: search query
         # - fl: fields to return (identifier is what we need for URLs)
         # - rows: number of results to return
         # - output: response format
-        # - sort: sort order (optional)
         api_url = f"https://archive.org/advancedsearch.php"
         
         params = {
-            'q': query,
+            'q': f'title:"{query}" AND (subject:textbook OR subject:education) AND collection:(internetarchivebooks OR opensource) AND mediatype:texts',
             'fl': 'identifier,title,creator,date,description',  
             'rows': 5,  
             'output': 'json',
-            'sort[]': 'downloads desc'  
         }
         
         print(f"Searching Archive.org API with query: '{query}'")
