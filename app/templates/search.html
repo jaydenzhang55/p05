@@ -82,39 +82,86 @@
     </nav> -->
 
     <div class='mx-10 my-10 min-h-dvh'>
-        <h1 class='text-3xl'>Search Results for: "{{ search }}"</h1>
-
+        <div class="flex justify-between items-center mb-6">
+            {% if showAll %}
+            <h1 class='text-3xl'>All Available PDFs</h1>
+            {% else %}
+            <h1 class='text-3xl'>Search Results for: "{{ search }}"</h1>
+            {% endif %}
+        
+            <div class="flex items-center space-x-4">
+                {% if list %}
+                <form method="POST" action="/search" class="inline">
+                    <input type="hidden" name="search" value="{{ search }}">
+                    <input type="hidden" name="showAll" value="{% if showAll %}true{% else %}false{% endif %}">
+                    <label for="sortSelect" class="text-sm font-medium text-gray-700 mr-2">Sort by:</label>
+                    <select name="sort" id="sortSelect"
+                        class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        onchange="this.form.submit()">
+                        <option value="default" {% if sort=='default' %}selected{% endif %}>Default</option>
+                        <option value="alphabetical" {% if sort=='alphabetical' %}selected{% endif %}>A-Z</option>
+                        <option value="reverse-alphabetical" {% if sort=='reverse-alphabetical' %}selected{% endif %}>Z-A</option>
+                        <option value="length-short" {% if sort=='length-short' %}selected{% endif %}>Shortest Title</option>
+                        <option value="length-long" {% if sort=='length-long' %}selected{% endif %}>Longest Title</option>
+                    </select>
+                </form>
+                {% endif %}
+        
+                <form method="POST" action="/search" class="inline">
+                    <input type="hidden" name="search" value="{{ search }}">
+                    {% if showAll %}
+                        <input type="hidden" name="showAll" value="false">
+                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-500 transition">
+                            Back to Search Results
+                        </button>
+                    {% else %}
+                        <input type="hidden" name="showAll" value="true">
+                        <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-500 transition">
+                            View All PDFs
+                        </button>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+        
         <div class="ml-10 mt-10 mb-10 max-w-3xl" id="searchResult">
             <ul>
-                {% if list %}
-                    {% for pdf in list %}
-                    <form method="POST" action="/book"
-                        class="transition ease-in-out duration-500 px-6 py-4 my-4 bg-blue-100 hover:bg-blue-800 hover:text-white rounded-md cursor-pointer">
+                {% if showAll %}
+                    {% if list %}
+                        {% for pdf in list %}
+                        <form method="POST" action="/book"
+                            class="transition ease-in-out duration-500 px-6 py-4 my-4 bg-blue-100 hover:bg-blue-800 hover:text-white rounded-md cursor-pointer">
+                            <input type="hidden" name="title" value="{{ pdf }}">
+                            <button type="submit" class="w-full text-left font-bold">
+                                {{ pdf }}
+                            </button>
+                        </form>
+                        {% endfor %}
+                    {% else %}
+                    <div class="text-gray-600 mt-4">No PDFs available.</div>
+                    {% endif %}
+                {% else %}
+                    {% if list %}
+                        {% for pdf in list %}
+                        <form method="POST" action="/book"
+                            class="transition ease-in-out duration-500 px-6 py-4 my-4 bg-blue-100 hover:bg-blue-800 hover:text-white rounded-md cursor-pointer">
                         <input type="hidden" name="title" value="{{ pdf }}">
                         <button type="submit" class="w-full text-left font-bold">
                             {{ pdf }}
                         </button>
-                    </form>
-                    {% endfor %}
+                        </form>
+                        {% endfor %}
+                    {% else %}
+                    <div class="text-gray-600 mt-4">No PDFs available.</div>
+                    {% endif %}
                 {% endif %}
-
-                <!-- {% if secondBool %}
-                <form method="POST" action="/scrape">
-                    <input type="hidden" name="search" value="{{ search }}">
-                    <button type="submit"
-                        class="transition ease-in-out duration-500 px-6 py-4 mt-6 bg-blue-500 text-white rounded-md hover:bg-blue-600">
-                        Search for Textbook Online
-                    </button>
-                </form>
-                {% endif %} -->
-
+        
                 {% if error %}
                 <div class="text-red-600 mt-4">{{ error }}</div>
                 {% endif %}
             </ul>
         </div>
-    </div>
-
+        </div>
     <footer class="bg-blue-800 w-full">
         <div class="w-full p-4 text-center">
         <span class="text-sm text-white">If you choose to make an account, you are agreeing to 404NotFound's Terms of Service. These terms include not uploading anything that would harm or be of incrimination to one's self. Also, explicit context that deviates from textbooks should not be uploaded, with any being promptly removed as well as legal consquences that may ensuit. 404NotFound are not responsible for incriminating, harmful, or untruthful content that may be uploaded please view content at your own discretion.</span>

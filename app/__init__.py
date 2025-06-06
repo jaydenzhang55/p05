@@ -191,27 +191,44 @@ def book():
 @app.route('/search', methods=['GET', 'POST'])
 def search():
     all = db.getAllPDFs()
+    
     if request.method == 'POST':
-        search_term = request.form.get('search')
-
+        search_term = request.form.get('search', '')
+        show_all = request.form.get('showAll', 'false') == 'true'
+        sort_type = request.form.get('sort', 'default')
+        
         matched_pdfs = db.searchForPDF(search_term)
-
+        
         boolean = False
         lists = []
-
+        
         if matched_pdfs:
             lists = matched_pdfs
             boolean = True
-
+        
+        if show_all:
+            current_list = all.copy()  
+        else:
+            current_list = lists.copy()  
+        
+        if sort_type == 'alphabetical':
+            current_list = sorted(current_list, key=str.lower)
+        elif sort_type == 'reverse-alphabetical':
+            current_list = sorted(current_list, key=str.lower, reverse=True)
+        elif sort_type == 'length-short':
+            current_list = sorted(current_list, key=len)
+        elif sort_type == 'length-long':
+            current_list = sorted(current_list, key=len, reverse=True)
+        
         if signed_in():
-            print(session['username'])
             return render_template(
-                "search.html",loggedIn=True,search=search_term, searchFound = boolean, list=lists, boolean=boolean, username=session["username"], all=all
+                "search.html", loggedIn=True, search=search_term, searchFound=boolean, list=current_list, boolean=boolean, username=session["username"], allPdfs=all, showAll=show_all, sort=sort_type  
             )
         else:
             return render_template(
-                "search.html",loggedIn=False,search=search_term,searchFound=boolean, list=lists, boolean=boolean,username=None, all=all
+                "search.html",loggedIn=False, search=search_term, searchFound=boolean, list=current_list, boolean=boolean, username=None, allPdfs=all, showAll=show_all, sort=sort_type  
             )
+        
 
 @app.route('/logout', methods=['GET', 'POST'])
 def logOut():
