@@ -9,7 +9,6 @@ Target Ship Date: 2025-06-06
 
 import base64
 import os
-import time
 import db as db 
 from flask import Flask
 from flask import flash
@@ -18,9 +17,6 @@ from flask import request
 from flask import session
 from flask import redirect
 from flask import url_for
-from flask import send_file
-from flask import Response
-from io import BytesIO
 import Solutions as sol
 import pikepdf
 import requests
@@ -29,15 +25,9 @@ import json
 import tempfile
 import shutil
 
-
 app = Flask(__name__)
 secret = os.urandom(32)
 app.secret_key = secret
-
-##image configuration
-upload_folder = 'static/images'
-allowed_extensions = {'png', 'jpg', 'jpeg', 'gif'}
-app.config['upload_folder'] = upload_folder
 
 def signed_in():
     return 'username' in session.keys() and session['username'] is not None
