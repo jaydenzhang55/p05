@@ -58,7 +58,6 @@ def check_password(username, password):
 
 @app.route('/', methods=['GET', 'POST'])
 def main():
-    all = db.getAllPDFs()
     if signed_in():
         if request.method == "POST":
             userRequest = request.form.get('request')
@@ -148,13 +147,22 @@ def register():
             return render_template('register.html', message="Username already exists", loggedIn="false")
     return render_template("register.html", loggedIn="false")
 
+@app.route('/saved', methods=['GET', 'POST'])
+def save():
+    if signed_in():
+        return redirect(url_for('saved', username=session['username'])) 
+    else: 
+        flash("You must be signed in to view saved items.")
+        return redirect(url_for('login'))
+
 @app.route('/saved/<username>', methods=['GET', 'POST'])
 def saved(username):
-    save = db.getSaved()
     if signed_in():
+        save = db.getSaved()
         return render_template("saved.html", loggedIn="true", username=session['username'], saves=save)
     else:
-        return render_template("saved.html", loggedIn="false", username='')
+        flash("You must be signed in to view saved items.")
+        return redirect(url_for('login'))
 
 @app.route('/book', methods=['GET', 'POST'])
 def book():
