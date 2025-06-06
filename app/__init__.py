@@ -174,9 +174,8 @@ def saved(username):
 def book():
     all = db.getAllPDFs()
     title = request.form.get("title")
-    pdf_data = db.searchForPDFData(title)[0]
-    saved = True
-
+    pdf_data = None
+    pdf_b64 = ""
     save = request.form.get('saveButton')
     if save is not None:
         if save =="true":
@@ -185,13 +184,40 @@ def book():
             saved = False
     else:
         saved = False
+    if title:
+        result = db.searchForPDFData(title)
+        if result:
+            pdf_data = result[0]
+            pdf_b64 = base64.b64encode(pdf_data).decode('utf-8')
+            
+    video = None
+    explanation = None
+    prompt = ""
 
+<<<<<<< HEAD
     if pdf_data:
         pdf_b64 = base64.b64encode(pdf_data).decode('utf-8')
     if signed_in():
             return render_template("book.html", loggedIn=True, username=session['username'], title=title, pdf_b64=pdf_b64, all=all)
     else:
         return render_template("book.html", loggedIn=False, username='', title=title, pdf_b64=pdf_b64, all=all)
+=======
+    if not signed_in():
+        return render_template("book.html", loggedIn=False, username='', title=title, pdf_b64=pdf_b64, all=all, explanation=explanation, prompt=prompt, video=video )
+
+    if request.method == "POST":
+        api_key = getAIKey()
+        prompt = request.form.get("prompt", "")
+        uploaded_file = request.files.get("file")
+        title = request.form.get("title")
+        if api_key and prompt:
+            explanation = sol.getGeminiExplaination(api_key, prompt)
+            video = sol.getGeminiVideo(api_key, prompt)
+        elif api_key and uploaded_file:
+            explanation = sol.getGeminiMedia(api_key, uploaded_file)
+
+    return render_template( "book.html", username=session.get('username'), loggedIn=True, title=title, pdf_b64=pdf_b64, all=all, explanation=explanation, prompt=prompt, video=video )
+>>>>>>> fc1491c25fe36304bcd3cc87196d0c61d700e9c0
     
 @app.route('/search', methods=['GET', 'POST'])
 def search():
